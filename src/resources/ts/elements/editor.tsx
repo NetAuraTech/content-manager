@@ -1,0 +1,940 @@
+import {
+    EditorComponentData,
+    EditorComponentDefinition,
+    EditorComponentDefinitions,
+    EditorComponentTemplate, FieldDefinition
+} from "../components/editor/types";
+import {indexify} from "../functions/object";
+import {fillDefaults} from "../functions/fields";
+import {createRoot} from "preact/compat/client";
+import {InsertPosition} from "../components/editor/enum";
+import {EditorManager} from "../components/editor/editorManager";
+import {translate} from "@core-cms-shared/functions/i18n";
+import {jsonFetchOrFlash} from "@core-cms-shared/functions/api";
+import {StoreProvider} from "../components/editor/store";
+import {Text, TextFieldArgs} from "../components/editor/components/fields/text";
+import {Select, SelectFieldArgs, SelectOption} from "../components/editor/components/fields/select";
+import {Color, ColorFieldArgs} from "../components/editor/components/fields/color";
+import {Number, NumberFieldArgs} from "../components/editor/components/fields/number";
+import {Tabs, TabDefinition} from "../components/editor/components/fields/layouts/tabs";
+import {Row} from "../components/editor/components/fields/layouts/rows";
+import {Range, RangeFieldArgs} from "../components/editor/components/fields/range";
+import {Repeater, RepeaterFieldArgs} from "../components/editor/components/fields/repeater";
+import {HtmlText, HtmlTextFieldArgs} from "../components/editor/components/fields/htmlText";
+import {Image, ImageFieldArgs} from "../components/editor/components/fields/image";
+import {DatePicker} from "../components/editor/components/fields/datePicker";
+import {Checkbox} from "../components/editor/components/fields/checkbox";
+
+const components: EditorComponentDefinitions = {}
+const templates: EditorComponentTemplate[] = []
+
+export class Editor {
+    jsonFetchOrFlash = jsonFetchOrFlash
+    components: EditorComponentDefinition[]
+
+    /**
+     * Defines the custom element
+     * @param elementName
+     */
+    defineElement(elementName: string = 'editor-builder') {
+        class EditorElement extends HTMLElement {
+            static changeEventName = 'change'
+            private _value = '';
+            private _mounted: boolean = false
+            private _data: EditorComponentData[] | null = null
+
+            static get observedAttributes() {
+                return ['hidden', 'value']
+            }
+
+            get value(): string {
+                return this._value
+            }
+
+            set value(v: string) {
+                if (v === this._value) {
+                    return
+                }
+                this._value = v
+                this._data = null
+                this.renderComponent()
+            }
+
+            connectedCallback() {
+                this._value = this.getAttribute('value') || '[]'
+                this.renderComponent()
+                this._mounted = true
+            }
+
+            disconnectedCallback() {
+                this._mounted = false
+            }
+
+            attributeChangedCallback(
+                name: string,
+                oldValue?: string,
+                newValue?: string,
+            ) {
+                if (!this._mounted) {
+                    return false
+                }
+
+                if (name === 'value') {
+                    if (newValue === this._value) {
+                        return
+                    }
+                    this._value = newValue!
+                }
+                this.renderComponent()
+            }
+
+            private parseValue(value: string): EditorComponentData[] {
+                if (this._data === null) {
+                    try {
+                        const json = JSON.parse(value)
+                        this._data = indexify(json).map((value: EditorComponentData) => {
+                            return fillDefaults(value, components[value._name]?.fields ?? [])
+                        })
+                    } catch (e) {
+                        console.error(translate('content-manager.admin.editor.parse.error'), value, e)
+                        alert(translate('content-manager.admin.editor.parse.error'))
+                        this._data = []
+                    }
+                }
+                return this._data!
+            }
+
+            private renderComponent() {
+                const data = this.parseValue(this._value)
+                const hiddenCategories =
+                    this.getAttribute('hidden-categories')?.split(';') ?? []
+                const inner = this.innerHTML;
+                createRoot(this).render(
+                    <StoreProvider
+                        data={data}
+                        definitions={components}
+                        templates={templates}
+                        hiddenCategories={hiddenCategories}
+                        rootElement={this}
+                        insertPosition={
+                            (this.getAttribute('insertPosition') ??
+                                InsertPosition.End) as InsertPosition
+                        }
+                    >
+                        <EditorManager
+                            element={this}
+                            inner={inner}
+                            value={data}
+                            previewUrl={this.getAttribute('preview') ?? ''}
+                            iconsUrl={this.getAttribute('iconsUrl') ?? '/'}
+                            name={this.getAttribute('name') ?? ''}
+                            visible={this.getAttribute('hidden') !== null}
+                            onChange={(value: string) => {
+                                if (this._value === value) {
+                                    return
+                                }
+                                this._value = value
+                                this.dispatchEvent(
+                                    new CustomEvent('change', {
+                                        detail: value,
+                                    }),
+                                )
+                            }}
+                        />
+                    </StoreProvider>,
+                )
+            }
+        }
+
+        customElements.define(elementName, EditorElement);
+    }
+
+    registerComponent(name: string, definition: EditorComponentDefinition) {
+        components[name] = {label: definition.title, ...definition}
+    }
+
+    titleField(name: string, label: string) {
+        return this.layouts.Row([
+            this.fields.Text(name, {
+                label: label,
+                multiline: false,
+                canAnimate: true,
+                default: 'Lorem ipsum dolor sit amet'
+            } as TextFieldArgs),
+            this.fields.Select(`${name}-level`, {
+                label: translate('content-manager.admin.editor.sidebar.tabs.title.level'),
+                options: [
+                    {
+                        label: 'H1',
+                        value: 'h1'
+                    },
+                    {
+                        label: 'H2',
+                        value: 'h2'
+                    },
+                    {
+                        label: 'H3',
+                        value: 'h3'
+                    },
+                    {
+                        label: 'H4',
+                        value: 'h4'
+                    },
+                ],
+                default: 'h2'
+            } as SelectFieldArgs),
+            this.fields.Color(`${name}-color`, {
+                label: translate('content-manager.admin.editor.sidebar.tabs.title.color'),
+                colors: Object.values(this.colors()),
+                default: 'transparent'
+            } as ColorFieldArgs),
+            this.fields.Select(`${name}-border-style`, {
+                label: translate('content-manager.admin.editor.sidebar.tabs.border.style.value'),
+                options: [
+                    {
+                        label: '',
+                        value: ''
+                    },
+                    {
+                        label: translate('content-manager.admin.editor.sidebar.tabs.border.style.solid'),
+                        value: 'solid'
+                    },
+                    {
+                        label: translate('content-manager.admin.editor.sidebar.tabs.border.style.dotted'),
+                        value: 'dotted'
+                    },
+                    {
+                        label: translate('content-manager.admin.editor.sidebar.tabs.border.style.dashed'),
+                        value: 'dashed'
+                    },
+                    {
+                        label: translate('content-manager.admin.editor.sidebar.tabs.border.style.wavy'),
+                        value: 'wavy'
+                    },
+                ],
+                default: ''
+            } as SelectFieldArgs),
+            this.fields.Select(`${name}-border-line`, {
+                label: translate('content-manager.admin.editor.sidebar.tabs.border.line.value'),
+                options: [
+                    {
+                        label: translate('content-manager.admin.editor.sidebar.tabs.border.line.underline'),
+                        value: 'underline'
+                    },
+                    {
+                        label: translate('content-manager.admin.editor.sidebar.tabs.border.line.overline'),
+                        value: 'overline'
+                    },
+                    {
+                        label: translate('content-manager.admin.editor.sidebar.tabs.border.line.blink'),
+                        value: 'blink'
+                    },
+                    {
+                        label: translate('content-manager.admin.editor.sidebar.tabs.border.line.line-through'),
+                        value: 'line-through'
+                    },
+                ],
+                default: 'underline'
+            } as SelectFieldArgs).when(`${name}-border-style`),
+            this.fields.Color(`${name}-border-color`, {
+                label: translate('content-manager.admin.editor.sidebar.tabs.border.color'),
+                colors: Object.values(this.colors()),
+                default: 'transparent'
+            } as ColorFieldArgs).when(`${name}-border-style`),
+        ]);
+    }
+
+    imageField(name: string, label: string) {
+        return [
+            this.layouts.Row([
+                this.fields.Image(name, {
+                    label: label,
+                    canAnimate: true
+                } as ImageFieldArgs),
+                this.fields.Text(`${name}-alt`, {
+                    label: translate('content-manager.admin.editor.sidebar.tabs.image.alt'),
+                    multiline: false,
+                    canAnimate: false
+                } as TextFieldArgs).when(name),
+            ] as Array<FieldDefinition>),
+            this.layouts.Row([
+                this.fields.Number(`${name}-height`, {
+                    label: translate('content-manager.admin.editor.sidebar.tabs.image.height.value'),
+                    help: translate('content-manager.admin.editor.sidebar.tabs.image.height.help')
+                } as NumberFieldArgs).when(name),
+                this.fields.Number(`${name}-opacity`, {
+                    label: translate('content-manager.admin.editor.sidebar.tabs.background.image.opacity'),
+                    default: "1",
+                    min: 0,
+                    max: 1,
+                    step: 0.01
+                } as NumberFieldArgs),
+            ] as Array<FieldDefinition>).when(name)
+        ]
+    }
+
+    animationField(key: string, label: string) {
+        return this.layouts.Row([
+            this.fields.Select(`${key}_animation`, {
+                label: label,
+                options: [
+                    {
+                        value: '',
+                        label: ''
+                    },
+                    {
+                        value: 'fade',
+                        label: 'Fade'
+                    },
+                    {
+                        value: 'fade-blur',
+                        label: 'Fade blur'
+                    },
+                    {
+                        value: 'fade-blur-left',
+                        label: 'Fade blur left'
+                    },
+                    {
+                        value: 'fade-blur-right',
+                        label: 'Fade blur right'
+                    },
+                    {
+                        value: 'slide-left',
+                        label: 'Slide Left'
+                    },
+                    {
+                        value: 'slide-right',
+                        label: 'Slide Right'
+                    },
+                ]
+            } as SelectFieldArgs),
+            this.fields.Number(`${key}_delay`, {
+                label: translate('content-manager.admin.editor.sidebar.tabs.animation.delay'),
+                step: 0.1,
+                min: 0,
+                default: "0"
+            } as NumberFieldArgs).when(`${key}_animation`),
+            this.fields.Text(`${key}-transition-name`, {
+                label: translate('content-manager.admin.editor.sidebar.tabs.animation.view-transition-name'),
+                multiline: false,
+                canAnimate: false
+            } as TextFieldArgs).when(`${key}_animation`, ''),
+        ]);
+    }
+
+    baseTabs(fields: Array<FieldDefinition<any, any>>) {
+        const animationFields = [this.animationField('general', translate('content-manager.admin.editor.sidebar.tabs.animation.general'))];
+
+
+        fields.map(field => {
+            if (!field.group && "name" in field) {
+                if (field.options.canAnimate && field.shouldRender) {
+                    const newField = this.animationField(field.name, field.options.label);
+                    newField.conditions = field.conditions;
+                    animationFields.push(newField);
+                }
+            }
+
+            if (field.group && "fields" in field) {
+                field.fields.map(subField => {
+                    if (!subField.group && "name" in subField) {
+                        if (subField.options.canAnimate) {
+                            const newField = this.animationField(subField.name, subField.options.label);
+                            newField.conditions = field.conditions;
+                            animationFields.push(newField);
+                        }
+                    }
+                })
+            }
+        });
+
+        return this.layouts.Tabs(
+            {
+                label: translate('content-manager.admin.editor.sidebar.tabs.content'),
+                fields: fields,
+            } as TabDefinition,
+            {
+                label: translate('content-manager.admin.editor.sidebar.tabs.animation.value'),
+                fields: animationFields,
+            } as TabDefinition,
+            {
+                label: translate('content-manager.admin.editor.sidebar.tabs.background.value'),
+                fields: [
+                    this.layouts.Row([
+                        this.fields.Color('background-color', {
+                            label: translate('content-manager.admin.editor.sidebar.tabs.background.color'),
+                            colors: Object.values(this.colors()),
+                            default: 'transparent'
+                        } as ColorFieldArgs),
+                        this.fields.Image('background-image', {
+                            label: translate('content-manager.admin.editor.sidebar.tabs.background.image.value')
+                        } as ImageFieldArgs),
+                        this.fields.Number('background-image-opacity', {
+                            label: translate('content-manager.admin.editor.sidebar.tabs.background.image.opacity'),
+                            default: "1",
+                            min: 0,
+                            max: 1,
+                            step: 0.01
+                        } as NumberFieldArgs),
+                    ] as Array<FieldDefinition<any, any>>),
+                    this.layouts.Row([
+                        this.fields.Select('background-image-size', {
+                            label: translate('content-manager.admin.editor.sidebar.tabs.background.image.size.value'),
+                            options: [
+                                {
+                                    label: translate('content-manager.admin.editor.sidebar.tabs.background.image.size.auto'),
+                                    value: 'auto'
+                                },
+                                {
+                                    label: translate('content-manager.admin.editor.sidebar.tabs.background.image.size.cover'),
+                                    value: 'cover'
+                                },
+                                {
+                                    label: translate('content-manager.admin.editor.sidebar.tabs.background.image.size.contain'),
+                                    value: 'contain'
+                                }
+                            ],
+                            default: 'auto'
+                        } as SelectFieldArgs),
+                        this.fields.Select('background-image-repeat', {
+                            label: translate('content-manager.admin.editor.sidebar.tabs.background.image.repeat.value'),
+                            options: [
+                                {
+                                    label: translate('content-manager.admin.editor.sidebar.tabs.background.image.repeat.no'),
+                                    value: 'no-repeat'
+                                },
+                                {
+                                    label: 'X',
+                                    value: 'repeat-x'
+                                },
+                                {
+                                    label: 'Y',
+                                    value: 'repeat-y'
+                                },
+                                {
+                                    label: 'X & Y',
+                                    value: 'repeat'
+                                }
+                            ],
+                            default: 'auto'
+                        } as SelectFieldArgs),
+                    ] as Array<FieldDefinition<any, any>>).when('background-image'),
+                    this.layouts.Row([
+                        this.fields.Select('background-image-position-x', {
+                            label: translate('content-manager.admin.editor.sidebar.tabs.background.image.position.x'),
+                            options: [
+                                {
+                                    label: translate('content-manager.admin.editor.sidebar.tabs.background.image.position.left'),
+                                    value: 'left'
+                                },
+                                {
+                                    label: translate('content-manager.admin.editor.sidebar.tabs.background.image.position.center'),
+                                    value: 'center'
+                                },
+                                {
+                                    label: translate('content-manager.admin.editor.sidebar.tabs.background.image.position.right'),
+                                    value: 'right'
+                                },
+                            ],
+                            default: 'center'
+                        } as SelectFieldArgs),
+                        this.fields.Select('background-image-position-y', {
+                            label: translate('content-manager.admin.editor.sidebar.tabs.background.image.position.y'),
+                            options: [
+                                {
+                                    label: translate('content-manager.admin.editor.sidebar.tabs.background.image.position.top'),
+                                    value: 'top'
+                                },
+                                {
+                                    label: translate('content-manager.admin.editor.sidebar.tabs.background.image.position.center'),
+                                    value: 'center'
+                                },
+                                {
+                                    label: translate('content-manager.admin.editor.sidebar.tabs.background.image.position.bottom'),
+                                    value: 'bottom'
+                                },
+                            ],
+                            default: 'center'
+                        } as SelectFieldArgs),
+                    ] as Array<FieldDefinition<any, any>>).when('background-image'),
+                ],
+            } as TabDefinition,
+            {
+                label: translate('content-manager.admin.editor.sidebar.tabs.appearance'),
+                fields: [
+                    this.layouts.Row([
+                        this.fields.Checkbox('use-container', {
+                            label: translate('content-manager.admin.editor.sidebar.tabs.appearance.container.use'),
+                            default: true,
+                        }),
+                        this.fields.Text('additional-classes', {
+                            label: translate('content-manager.admin.editor.sidebar.tabs.appearance.classes.additional'),
+                            default: "",
+                        }),
+                        this.fields.Text('id', {
+                            label: translate('content-manager.admin.editor.sidebar.tabs.appearance.id'),
+                            default: "",
+                        })
+                    ] as Array<FieldDefinition<any, any>>, {
+                    }),
+                    this.layouts.Row([
+                        this.fields.Range('padding-block', {
+                            label: translate('content-manager.admin.editor.sidebar.tabs.padding.block'),
+                            step: 1,
+                            min: 0,
+                            max: 20,
+                            default: "6"
+                        } as RangeFieldArgs),
+                        this.fields.Range('padding-inline', {
+                            label: translate('content-manager.admin.editor.sidebar.tabs.padding.inline'),
+                            step: 1,
+                            min: 0,
+                            max: 20,
+                            default: "0"
+                        } as RangeFieldArgs),
+                    ] as Array<FieldDefinition<any, any>>, {label: translate('content-manager.admin.editor.category.layout')}),
+                    this.layouts.Row([
+                        this.fields.Range('border-top-left-radius', {
+                            min: 0,
+                            max: 20,
+                            default: "0",
+                            label: translate('content-manager.admin.editor.sidebar.tabs.border.radius.topleft')
+                        } as RangeFieldArgs),
+                        this.fields.Range('border-top-right-radius', {
+                            min: 0,
+                            max: 20,
+                            default: "0",
+                            label: translate('content-manager.admin.editor.sidebar.tabs.border.radius.topright')
+                        } as RangeFieldArgs),
+                        this.fields.Range('border-bottom-left-radius', {
+                            min: 0,
+                            max: 20,
+                            default: "0",
+                            label: translate('content-manager.admin.editor.sidebar.tabs.border.radius.bottomleft')
+                        } as RangeFieldArgs),
+                        this.fields.Range('border-bottom-right-radius', {
+                            min: 0,
+                            max: 20,
+                            default: "0",
+                            label: translate('content-manager.admin.editor.sidebar.tabs.border.radius.bottomright')
+                        } as RangeFieldArgs),
+                    ] as Array<FieldDefinition<any, any>>, {
+                        label: translate('content-manager.admin.editor.sidebar.tabs.border.radius.value')
+                    })
+                ],
+            } as TabDefinition,
+        )
+    }
+
+    links = (options: SelectOption[] = []) => {
+        return [
+            this.fields.Text('label', {
+                label: translate('content-manager.admin.editor.sidebar.tabs.label.value'),
+                help: translate('content-manager.admin.editor.sidebar.tabs.label.help'),
+                multiline: false,
+            } as TextFieldArgs),
+            this.fields.Select('type', {
+                label: translate('content-manager.admin.editor.sidebar.tabs.link.type.value'),
+                default: 'internal',
+                options: [
+                    {
+                        label: translate('content-manager.admin.editor.sidebar.tabs.link.type.internal'),
+                        value: 'internal',
+                    },
+                    {
+                        label: translate('content-manager.admin.editor.sidebar.tabs.link.type.external'),
+                        value: 'external',
+                    },
+                ],
+            } as SelectFieldArgs),
+            this.fields
+                .Select('url', {
+                    label: translate('content-manager.admin.editor.sidebar.tabs.link.value'),
+                    options: [
+                        {
+                            value: '',
+                            label: '',
+                        },
+                        {
+                            value: JSON.stringify({
+                                path: 'home',
+                                label: translate('content-manager.admin.editor.sidebar.tabs.link.home'),
+                            }),
+                            label: translate('content-manager.admin.editor.sidebar.tabs.link.home'),
+                        },
+                        {
+                            value: JSON.stringify({
+                                path: 'blog.index',
+                                label: translate('content-manager.admin.editor.sidebar.tabs.link.blog'),
+                            }),
+                            label: translate('content-manager.admin.editor.sidebar.tabs.link.blog'),
+                        },
+                        {
+                            value: JSON.stringify({
+                                path: 'profile.index',
+                                label: translate('content-manager.admin.editor.sidebar.tabs.link.profile'),
+                            }),
+                            label: translate('content-manager.admin.editor.sidebar.tabs.link.profile'),
+                        },
+                        {
+                            value: JSON.stringify({
+                                path: 'login',
+                                label: translate('content-manager.admin.editor.sidebar.tabs.link.login'),
+                            }),
+                            label: translate('content-manager.admin.editor.sidebar.tabs.link.login'),
+                        },
+                        ...options,
+                    ],
+                })
+                .when('type', 'internal'),
+            this.fields
+                .Text('url', {
+                    label: translate('content-manager.admin.editor.sidebar.tabs.link.url'),
+                    multiline: false,
+                })
+                .when('type', 'external'),
+            this.animationField('link', translate('content-manager.admin.editor.sidebar.tabs.animation.general'))
+        ]
+    }
+
+    generateConditionalFields(components: EditorComponentDefinition[]) {
+        const fields: FieldDefinition[] = [];
+
+        components.map(component =>
+            component.fields.map(field => fields.push(field.when('item-type', component._id)))
+        );
+
+        return fields
+    };
+
+    generateTemplateItem(components: EditorComponentDefinition[], name: string) {
+        return this.fields.Repeater(name, {
+            collapsed: 'item-type',
+            fields: [
+                this.baseTabs([
+                    this.fields.Select('item-type', {
+                        label: translate('content-manager.admin.editor.sidebar.template.choose'),
+                        options: [
+                            {
+                                value: '',
+                                label: '',
+                            },
+                            ...components.map(component => {
+                                return {
+                                    value: component._id,
+                                    label: component.title,
+                                }
+                            })
+                        ],
+                    } as SelectFieldArgs),
+                    ...this.generateConditionalFields(components),
+                ] as Array<FieldDefinition<any, any>>)
+            ],
+            addLabel: translate('core-cms.admin.add'),
+            label: translate('content-manager.admin.editor.sidebar.item')
+        } as RepeaterFieldArgs)
+    }
+
+    registerComponents(components: EditorComponentDefinition[], options: SelectOption[]) {
+        this.components = components;
+        this.components.push({
+            _id: 'theme-switcher',
+            title: translate('content-manager.admin.editor.sidebar.tabs.theme-switcher'),
+            category: translate('content-manager.admin.editor.category.template'),
+            fields: [
+                this.titleField('title', translate('content-manager.admin.editor.sidebar.tabs.title.value')),
+            ]
+        } as EditorComponentDefinition);
+
+        this.components.push({
+            _id: 'section',
+            title: translate('content-manager.admin.editor.sidebar.tabs.section'),
+            category: translate('content-manager.admin.editor.category.template'),
+            canEditAppearance: true,
+            fields: [
+                ...this.imageField('image', translate('content-manager.admin.editor.sidebar.tabs.image.value')),
+                this.titleField('title', translate('content-manager.admin.editor.sidebar.tabs.title.value')),
+                this.fields.HtmlText('content', {
+                    label: translate('content-manager.admin.editor.sidebar.tabs.content'),
+                    colors: Object.values(this.colors()),
+                    multiline: true,
+                    canAnimate: true
+                } as HtmlTextFieldArgs),
+                this.fields.Repeater('ctas', {
+                    addLabel: translate('core-cms.admin.add'),
+                    fields: [...this.links(options)],
+                    label: translate('content-manager.admin.editor.sidebar.tabs.ctas')
+                } as RepeaterFieldArgs),
+            ]
+        } as EditorComponentDefinition);
+
+        this.components.push({
+            _id: 'links',
+            title: translate('content-manager.admin.editor.sidebar.tabs.links'),
+            category: translate('content-manager.admin.editor.category.template'),
+            canEditAppearance: true,
+            fields: [
+                this.titleField('title', translate('content-manager.admin.editor.sidebar.tabs.title.value')),
+                this.fields.Repeater('links', {
+                    addLabel: translate('core-cms.admin.add'),
+                    fields: [...this.links(options)],
+                    label: translate('content-manager.admin.editor.sidebar.tabs.links')
+                } as RepeaterFieldArgs),
+            ]
+        } as EditorComponentDefinition);
+
+        this.components.push({
+            _id: 'automatic-gallery',
+            title: translate('content-manager.admin.editor.sidebar.tabs.automatic-gallery.value'),
+            category: translate('content-manager.admin.editor.category.template'),
+            canEditAppearance: true,
+            fields: [
+                this.titleField('title', translate('content-manager.admin.editor.sidebar.tabs.title.value')),
+                this.fields.HtmlText('content', {
+                    label: translate('content-manager.admin.editor.sidebar.tabs.content'),
+                    colors: Object.values(this.colors()),
+                    multiline: true,
+                    canAnimate: true
+                } as HtmlTextFieldArgs),
+                this.fields.Number('row-height', {
+                    label: translate('content-manager.admin.editor.sidebar.tabs.automatic-gallery.row.height'),
+                    default: "350"
+                } as NumberFieldArgs),
+                this.fields.Number('gap', {
+                    label: translate('content-manager.admin.editor.sidebar.tabs.automatic-gallery.gap'),
+                    default: "1",
+                    step: .5
+                } as NumberFieldArgs),
+                this.fields.Repeater('images', {
+                    addLabel: translate('core-cms.admin.add'),
+                    fields: [
+                        ...this.imageField('image', translate('content-manager.admin.editor.sidebar.tabs.image.value')),
+                    ],
+                    label: translate('content-manager.admin.editor.sidebar.tabs.images')
+                } as RepeaterFieldArgs),
+            ]
+        } as EditorComponentDefinition);
+
+        this.components.push({
+            _id: 'image',
+            title: translate('content-manager.admin.editor.sidebar.tabs.image.value'),
+            category: translate('content-manager.admin.editor.category.template'),
+            canEditAppearance: true,
+            fields: [
+                ...this.imageField('image', translate('content-manager.admin.editor.sidebar.tabs.image.value')),
+            ]
+        } as EditorComponentDefinition);
+
+        this.components.push({
+            _id: 'carousel',
+            title: translate('content-manager.admin.editor.sidebar.tabs.carousel.value'),
+            category: translate('content-manager.admin.editor.category.template'),
+            canEditAppearance: true,
+            fields: [
+                this.titleField('title', translate('content-manager.admin.editor.sidebar.tabs.title.value')),
+                this.fields.HtmlText('content', {
+                    label: translate('content-manager.admin.editor.sidebar.tabs.content'),
+                    colors: Object.values(this.colors()),
+                    multiline: true,
+                    canAnimate: true
+                } as HtmlTextFieldArgs),
+                this.fields.Number('items-per-page', {
+                    label: translate('content-manager.admin.editor.sidebar.tabs.carousel.items-per-page'),
+                    default: "4"
+                } as NumberFieldArgs),
+                this.generateTemplateItem(this.components, 'layout-items')
+            ]
+        } as EditorComponentDefinition);
+
+        this.registerComponent('layouts.grid-auto-fit', {
+            _id: 'layouts.grid-auto-fit',
+            title: translate('content-manager.admin.editor.sidebar.tabs.grid.value'),
+            category: translate('content-manager.admin.editor.category.layout'),
+            fields: [
+                this.baseTabs([
+                    this.titleField('title', translate('content-manager.admin.editor.sidebar.tabs.title.value')),
+                    this.fields.HtmlText('content', {
+                        label: translate('content-manager.admin.editor.sidebar.tabs.content'),
+                        colors: Object.values(this.colors()),
+                        canAnimate: true
+                    } as HtmlTextFieldArgs),
+                    this.fields.Number('min-item-size', {
+                        label: translate('content-manager.admin.editor.sidebar.tabs.grid.item.size.min'),
+                        default: "250"
+                    } as NumberFieldArgs),
+                    this.fields.Number('gap', {
+                        label: translate('content-manager.admin.editor.sidebar.tabs.grid.gap'),
+                        default: "1.5",
+                        step: .5
+                    } as NumberFieldArgs),
+                    this.generateTemplateItem(this.components, 'layout-items')
+                ] as Array<FieldDefinition<any, any>>),
+            ]
+        } as EditorComponentDefinition);
+
+        this.registerComponent('layouts.even-columns', {
+            _id: 'layouts.even-columns',
+            title: translate('content-manager.admin.editor.sidebar.tabs.even-columns'),
+            category: translate('content-manager.admin.editor.category.layout'),
+            fields: [
+                this.baseTabs([
+                    this.titleField('title', translate('content-manager.admin.editor.sidebar.tabs.title.value')),
+                    this.generateTemplateItem(this.components, 'layout-items')
+                ] as Array<FieldDefinition<any, any>>),
+            ]
+        } as EditorComponentDefinition);
+
+        this.registerComponent('contact', {
+            _id: 'contact',
+            title: translate('content-manager.admin.editor.sidebar.tabs.contact.value'),
+            category: translate('content-manager.admin.editor.category.template'),
+            fields: [
+                this.baseTabs([
+                    this.titleField('title', translate('content-manager.admin.editor.sidebar.tabs.title.value')),
+                    this.fields.HtmlText('content', {
+                        label: translate('content-manager.admin.editor.sidebar.tabs.content'),
+                        colors: Object.values(this.colors()),
+                    } as HtmlTextFieldArgs),
+                    this.fields.Repeater('subjects', {
+                        label: translate('content-manager.admin.editor.sidebar.tabs.contact.subject.value'),
+                        fields: [
+                            this.fields.Text('option', {
+                                label: translate('content-manager.admin.editor.sidebar.tabs.contact.subject.option')
+                            } as TextFieldArgs),
+                        ]
+                    } as RepeaterFieldArgs)
+                ] as Array<FieldDefinition<any, any>>),
+            ]
+        } as EditorComponentDefinition);
+
+        this.registerComponent('form', {
+            _id: 'form',
+            title: translate('content-manager.admin.editor.sidebar.tabs.form.value'),
+            category: translate('content-manager.admin.editor.category.template'),
+            fields: [
+                this.baseTabs([
+                    this.titleField('title', translate('content-manager.admin.editor.sidebar.tabs.title.value')),
+                    this.fields.HtmlText('content', {
+                        label: translate('content-manager.admin.editor.sidebar.tabs.content'),
+                        colors: Object.values(this.colors()),
+                    } as HtmlTextFieldArgs),
+                    this.fields.Repeater('sections', {
+                        label: translate('content-manager.admin.editor.sidebar.tabs.form.sections.value'),
+                        fields: [
+                            this.titleField('title', translate('content-manager.admin.editor.sidebar.tabs.title.value')),
+                            this.fields.Checkbox('visible', {
+                                label: translate('content-manager.admin.editor.sidebar.tabs.form.sections.visible'),
+                                default: true
+                            }),
+                            this.fields.Repeater('fields', {
+                                label: translate('content-manager.admin.editor.sidebar.tabs.form.fields.value'),
+                                fields: [
+                                    this.fields.Select('type', {
+                                        label: translate('content-manager.admin.editor.sidebar.tabs.form.fields.type'),
+                                        options: [
+                                            {
+                                                label: 'Input',
+                                                value: 'text'
+                                            },
+                                            {
+                                                label: 'Textarea',
+                                                value: 'textarea'
+                                            },
+                                            {
+                                                label: 'Select',
+                                                value: 'select'
+                                            },
+                                            {
+                                                label: 'Checkbox',
+                                                value: 'checkbox'
+                                            },
+                                        ],
+                                        default: 'text'
+                                    } as SelectFieldArgs),
+                                    this.fields.Repeater('options', {
+                                        label: translate('content-manager.admin.editor.sidebar.tabs.form.fields.options'),
+                                        fields: [
+                                            this.fields.Text('option', {
+                                                label: translate('content-manager.admin.editor.sidebar.tabs.form.fields.options')
+                                            } as TextFieldArgs),
+                                        ]
+                                    } as RepeaterFieldArgs).when('type', 'select'),
+                                    this.fields.Text('label', {
+                                        label: translate('content-manager.admin.editor.sidebar.tabs.form.fields.label')
+                                    } as TextFieldArgs),
+                                    this.fields.Text('help', {
+                                        label: translate('content-manager.admin.editor.sidebar.tabs.form.fields.help')
+                                    } as TextFieldArgs),
+                                ]
+                            } as RepeaterFieldArgs)
+                        ]
+                    } as RepeaterFieldArgs),
+                ] as Array<FieldDefinition<any, any>>),
+            ]
+        } as EditorComponentDefinition);
+
+        this.components.map(component => {
+            this.registerComponent(component['_id'], {
+                _id: component['_id'],
+                title: component['title'],
+                category: component['category'],
+                fields: [
+                    this.baseTabs(component['fields'])
+                ],
+            } as EditorComponentDefinition);
+        })
+    }
+
+    colors() {
+        const ret = [];
+
+        const colors = [
+            'primary',
+            'accent',
+            'orange',
+            'yellow',
+            'yellowgreen',
+            'green',
+            'lime',
+            'turquoise',
+            'cyan',
+            'skyblue',
+            'blue',
+            'purple',
+            'magenta',
+            'pink',
+            'deeppink',
+            'red',
+            'neutral',
+        ];
+
+        colors.forEach(color => {
+            const intensities = ['100', '200', '300', '400', '500', '600', '700', '800', '900'];
+
+            intensities.forEach(intensity => {
+                ret[`${color}-${intensity}`] = `var(--${color}-${intensity})`;
+            })
+        })
+
+        return ret;
+    }
+
+
+    layouts = {
+        Tabs,
+        Row
+    }
+
+    fields = {
+        Repeater,
+        Text,
+        Select,
+        Image,
+        DatePicker,
+        Number,
+        Range,
+        Checkbox,
+        Color,
+        HtmlText
+    }
+}

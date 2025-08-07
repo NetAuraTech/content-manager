@@ -4,6 +4,8 @@ namespace Netauratech\ContentManager;
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
+use Netauratech\ContentManager\Models\Content;
+use Netauratech\ContentManager\Observers\ContentObserver;
 use Netauratech\ContentManager\Services\ContentProvider;
 use Netauratech\CoreCms\Contracts\ContentProviderInterface;
 use Netauratech\CoreCms\Services\Admin\MenuManager;
@@ -51,7 +53,7 @@ class ContentManagerServiceProvider extends ServiceProvider
                 $packageName = $composerJsonContent['name'];
             }
             $assetManager->registerAppJs("vendor/{$packageName}/src/resources/ts/app.ts");
-            $assetManager->registerAppJs("vendor/{$packageName}/src/resources/ts/admin.ts");
+            $assetManager->registerAdminJs("vendor/{$packageName}/src/resources/ts/admin.ts");
         }
 
         // Lang
@@ -77,6 +79,8 @@ class ContentManagerServiceProvider extends ServiceProvider
         ], function () {
             $this->loadRoutesFrom(__DIR__.'/routes/web.php');
         });
+
+        Content::observe(ContentObserver::class);
 
         $menuManager->registerMenuItem('content-management', [
             'label' => __('content-manager::admin.content.value'),

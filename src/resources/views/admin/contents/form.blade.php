@@ -40,7 +40,12 @@
                     @include('core-cms::shared.input', ['label' => __('content-manager::admin.content.title'), 'name' => 'title', 'value' => $content->title])
                     @include('core-cms::shared.input', ['label' => __('content-manager::admin.content.slug'), 'name' => 'slug', 'value' => $content->slug])
                     @include('core-cms::shared.input', ['label' => __('content-manager::admin.content.description'), 'name' => 'description', 'value' => $content->description, 'type' => 'textarea'])
-                    @include('core-cms::shared.input', ['label' => __('content-manager::admin.content.value'), 'name' => 'content', 'value' => $content->content, 'type' => 'textarea'])
+                    <editor-builder
+                            id="content"
+                            name="content"
+                            value="{{ $content->content ?: '[]' }}"
+                            preview="{{ route('admin.contents.preview', ['type' => $content->type]) }}"
+                    ></editor-builder>
                     @if(in_array($contentType, ['template', 'header', 'footer']))
                         @include('core-cms::shared.select', [
                             'label' => __('content-manager::admin.content.type.value'),

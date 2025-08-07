@@ -44,24 +44,4 @@ class PageController extends Controller
             'isHomepage' => true,
         ]);
     }
-
-    /**
-     * Displays a specific page by its slug.
-     *
-     * @param string $slug The slug of the page.
-     * @return View
-     */
-    public function show(string $slug): View
-    {
-        $page = $this->contentProvider->getContentBySlug($slug);
-
-        if (!$page || $page->type !== 'page' || $page->status !== 'published') {
-            abort(404, 'Page introuvable ou non publiée.');
-        }
-
-        return view('content-manager::front.page', [
-            'page' => $page,
-            'isHomepage' => false,
-        ]);
-    }
 }

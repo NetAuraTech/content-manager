@@ -5,8 +5,11 @@ namespace Netauratech\ContentManager\Http\Controllers\Admin;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use JsonException;
 use Netauratech\ContentManager\Http\Requests\Admin\ContentFormRequest;
 use Netauratech\ContentManager\Models\Content;
+use Netauratech\ContentManager\Observers\ContentObserver;
 use Netauratech\CoreCms\Http\Controllers\AdminController;
 
 class ContentController extends AdminController
@@ -14,7 +17,7 @@ class ContentController extends AdminController
     protected array $permissions = [
         'content-list'   => ['index'],
         'content-create' => ['create', 'store'],
-        'content-edit'   => ['edit', 'update'],
+        'content-edit'   => ['edit', 'update', 'preview'],
         'content-delete' => ['destroy'],
     ];
 
@@ -110,5 +113,57 @@ class ContentController extends AdminController
         }
 
         return to_route('admin.contents.index', ['type' => $type])->with('success', __('content-manager::admin.content.deleted'));
+    }
+
+    /**
+     * Manages previews for content or templates.
+     * @throws JsonException
+     */
+    public function preview(Request $request, string $type = 'content'): View
+    {
+        $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
+
+        $post = new Content();
+        $post->id = 9_999_999;
+        $post->title = 'Lorem ipsum dolor';
+        $post->slug = 'lorem-ipsum-dolor';
+        $post->created_at = now();
+
+        $hideHeaderFooter = in_array($type, ['template', 'header', 'footer']);
+
+        $css = "";
+
+        if (array_is_list($data)) {
+            foreach ($data as $block) {
+                if(!empty($block['layout-items'])) {
+                    foreach ($block['layout-items'] as $item) {
+                        $css = ContentObserver::generate($item, $css);
+                    }
+                }
+
+                $css = ContentObserver::generate($block, $css);
+            }
+            return view('content-manager::admin.contents.preview', [
+                'blocks' => $data,
+                'content' => $post,
+                'css' => $css,
+                'hideHeaderFooter' => $hideHeaderFooter,
+            ]);
+        }
+
+        if(!empty($data['layout-items'])) {
+            foreach ($data['layout-items'] as $item) {
+                $css = ContentObserver::generate($item, $css);
+            }
+        }
+
+        $css = ContentObserver::generate($data, $css);
+
+        return view('content-manager::shared.blocks.renderer', [
+            'block' => $data,
+            'content' => $post,
+            'css' => $css,
+            'hideHeaderFooter' => $hideHeaderFooter,
+        ]);
     }
 }

@@ -1,0 +1,29 @@
+import {SidebarComponentMissingProps} from "../../types";
+import {useRemoveBloc} from "../../store";
+import {Sortable} from "../Sortable";
+import {IconTrash} from "../ui/Icons";
+import {translate} from "@core-cms-shared/functions/i18n";
+import {prevent} from "@core-cms-shared/functions/functions";
+import {CSSProperties} from "preact/compat";
+
+export function SidebarComponentMissing({data}: SidebarComponentMissingProps) {
+    const removeBloc = useRemoveBloc()
+    return (
+        <Sortable item={data} className='sidebar__sortable missing'>
+            <div className="flex-group align-items-center justify-content-space-between padding-inline-4"
+                 style={{width: "initial", flexWrap: 'initial'} as CSSProperties}>
+                <h3 className="heading-3">
+                    <strong>{`${translate('content-manager.admin.editor.sidebar.component.unknown')} : ${data._name}`}</strong>
+                </h3>
+                <button
+                    className="button padding-0"
+                    data-type="transparent"
+                    onClick={prevent(() => removeBloc(data))}
+                    title={translate('content-manager.admin.editor.component.delete')}
+                >
+                    <IconTrash />
+                </button>
+            </div>
+        </Sortable>
+    )
+}
