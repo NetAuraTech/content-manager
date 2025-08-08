@@ -16,6 +16,15 @@ return [
         ],
         'category' => [
             'value' => '{0}Catégories|[1,1]une catégorie|[2,*]les catégories',
+            'created' => 'La catégorie a été créée.',
+            'updated' => 'La catégorie a été mise à jour.',
+            'deleted' => 'La catégorie a été supprimée.',
+        ],
+        'tag' => [
+            'value' => '{0}Tags|[1,1]un tag|[2,*]les tags',
+            'created' => 'Le tag a été créé.',
+            'updated' => 'Le tag a été mis à jour.',
+            'deleted' => 'Le tag a été supprimé.',
         ],
         'page' => [
             'value' => '{0}Pages|[1,1]une page|[2,*]les pages'

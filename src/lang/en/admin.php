@@ -16,6 +16,15 @@ return [
         ],
         'category' => [
             'value' => '{0}Categories|[1,1]category|[2,*]categories',
+            'created' => 'The category has been created.',
+            'updated' => 'The category has been updated.',
+            'deleted' => 'The category has been deleted.',
+        ],
+        'tag' => [
+            'value' => '{0}Tags|[1,1]tag|[2,*]tags',
+            'created' => 'The tag has been created.',
+            'updated' => 'The tag has been updated.',
+            'deleted' => 'The tag has been deleted.',
         ],
         'page' => [
             'value' => '{0}Pages|[1,1]page|[2,*]pages'
