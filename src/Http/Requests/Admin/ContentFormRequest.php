@@ -6,6 +6,7 @@ use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Netauratech\CoreCms\Form\FormRegistry;
 
 class ContentFormRequest extends FormRequest
 {
@@ -26,7 +27,7 @@ class ContentFormRequest extends FormRequest
     {
         $contentId = $this->route('content') ? $this->route('content')->id : null;
 
-        return [
+        $staticRules = [
             'title' => ['required', 'string', 'max:255'],
             'slug' => [
                 'nullable',
@@ -40,6 +41,18 @@ class ContentFormRequest extends FormRequest
             'status' => ['required', 'string', Rule::in(['draft', 'published', 'archived'])],
             'published_at' => ['nullable', 'date'],
         ];
+
+        $dynamicRules = [];
+        $formRegistry = app(FormRegistry::class);
+        $formFields = $formRegistry->getFormFields('content_form');
+
+        foreach ($formFields as $fieldDefinition) {
+            if (isset($fieldDefinition['validation'])) {
+                $dynamicRules[$fieldDefinition['name']] = $fieldDefinition['validation'];
+            }
+        }
+
+        return array_merge($staticRules, $dynamicRules);
     }
 
     /**

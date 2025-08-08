@@ -10,6 +10,7 @@ use JsonException;
 use Netauratech\ContentManager\Http\Requests\Admin\ContentFormRequest;
 use Netauratech\ContentManager\Models\Content;
 use Netauratech\ContentManager\Observers\ContentObserver;
+use Netauratech\CoreCms\Form\FormRegistry;
 use Netauratech\CoreCms\Http\Controllers\AdminController;
 
 class ContentController extends AdminController
@@ -20,6 +21,14 @@ class ContentController extends AdminController
         'content-edit'   => ['edit', 'update', 'preview'],
         'content-delete' => ['destroy'],
     ];
+
+    protected FormRegistry $formRegistry;
+
+    public function __construct(FormRegistry $formRegistry)
+    {
+        parent::__construct();
+        $this->formRegistry = $formRegistry;
+    }
 
     /**
      * Display a listing of the resource.
@@ -52,9 +61,12 @@ class ContentController extends AdminController
         $content->status = 'draft';
         $content->published_at = new Carbon();
 
+        $formFields = $this->formRegistry->getFormFields('content_form');
+
         return view('content-manager::admin.contents.form', [
             'content' => $content,
             'contentType' => $type,
+            'formFields' => $formFields
         ]);
     }
 
@@ -76,9 +88,12 @@ class ContentController extends AdminController
      */
     public function edit(Content $content): View
     {
+        $formFields = $this->formRegistry->getFormFields('content_form');
+
         return view('content-manager::admin.contents.form', [
             'content' => $content,
             'contentType' => $content->type,
+            'formFields' => $formFields
         ]);
     }
 
