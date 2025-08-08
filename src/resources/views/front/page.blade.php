@@ -21,6 +21,6 @@
 
 @section('body')
     @foreach($page->getContent() as $block)
-        @includeIf('content-manager::shared.blocks.renderer', ['block' => $block])
+        @includeIf('content-manager::shared.blocks.renderer', ['block' => $block, 'content' => $page])
     @endforeach
 @endsection
