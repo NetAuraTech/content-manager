@@ -36,16 +36,16 @@
             <form
                 class="grid"
                 method="post"
-                action="{{ route('contact') }}"
+                action="{{ route('forms.submit', ['slug' => $content->slug, 'formType' => 'contact']) }}"
             >
                 @csrf
                 <div class="grid-auto-fit align-items-center" style="width: initial;">
-                    @include('core-cms::shared.input', ['label' => __('cms.lastname'), 'name' => 'lastname',])
-                    @include('core-cms::shared.input', ['label' => __('cms.firstname'), 'name' => 'firstname',])
+                    @include('core-cms::shared.input', ['label' => __('core-cms::core.form.contact.lastname'), 'name' => 'lastname',])
+                    @include('core-cms::shared.input', ['label' => __('core-cms::core.form.contact.firstname'), 'name' => 'firstname',])
                 </div>
                 <div class="grid-auto-fit align-items-center" style="width: initial;">
-                    @include('core-cms::shared.input', ['label' => __('cms.email'), 'name' => 'email', 'type' => 'email',])
-                    @include('core-cms::shared.input', ['label' => __('cms.phone'), 'name' => 'phone'])
+                    @include('core-cms::shared.input', ['label' => __('core-cms::core.form.contact.email'), 'name' => 'email', 'type' => 'email',])
+                    @include('core-cms::shared.input', ['label' => __('core-cms::core.form.contact.phone'), 'name' => 'phone'])
                 </div>
                 @php
                     $subjects = collect([]);
@@ -55,9 +55,9 @@
                     }
 
                 @endphp
-                @include('core-cms::shared.select', ['label' => __('cms.subject'), 'name' => 'subject', 'selectOptions' => $subjects->map(fn($s) => (object)['key' => $s['option'],'label' => $s['option']])])
-                @include('core-cms::shared.input', ['label' => __('cms.message'), 'name' => 'content', 'type' => 'textarea'])
-                @include('core-cms::shared.captcha', ['label' => __('cms.captcha.value'), 'name' => 'captcha'])
+                @include('core-cms::shared.select', ['label' => __('core-cms::core.form.contact.subject'), 'name' => 'subject', 'selectOptions' => $subjects->map(fn($s) => (object)['key' => $s['option'],'label' => $s['option']])])
+                @include('core-cms::shared.input', ['label' => __('core-cms::core.form.contact.message'), 'name' => 'content', 'type' => 'textarea'])
+                @include('core-cms::shared.captcha', ['label' => __('core-cms::core.captcha.value'), 'name' => 'captcha'])
 
                 <div class="flex-group">
                     <button
@@ -65,7 +65,7 @@
                         data-type="primary"
                         type="submit"
                     >
-                        {{ __('admin.send') }}
+                        {{ __('core-cms::core.form.send') }}
                     </button>
                 </div>
             </form>
