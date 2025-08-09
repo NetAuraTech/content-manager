@@ -10,6 +10,7 @@ use JsonException;
 use Netauratech\ContentManager\Http\Requests\Admin\ContentFormRequest;
 use Netauratech\ContentManager\Models\Content;
 use Netauratech\ContentManager\Observers\ContentObserver;
+use Netauratech\CoreCms\Events\ContentSaved;
 use Netauratech\CoreCms\Form\FormRegistry;
 use Netauratech\CoreCms\Http\Controllers\AdminController;
 
@@ -80,6 +81,8 @@ class ContentController extends AdminController
         $content->fill($request->validated());
         $content->save();
 
+        ContentSaved::dispatch($content, $request);
+
         return to_route('admin.contents.index', ['type' => $type])->with('success', __('content-manager::admin.content.created'));
     }
 
@@ -104,6 +107,8 @@ class ContentController extends AdminController
     {
         $content->status = $request->validated('status', 'draft');
         $content->update($request->validated());
+
+        ContentSaved::dispatch($content, $request);
 
         $type = $content->type;
 
