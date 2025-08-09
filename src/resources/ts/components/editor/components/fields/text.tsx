@@ -1,4 +1,4 @@
-import {useUniqId} from "../../../../functions/hooks";
+import {useUniqId} from "@core-cms-shared/functions/hooks";
 import {Field} from "../ui/field";
 import {defineField} from "./utils";
 import {JSX} from "preact";

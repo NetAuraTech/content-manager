@@ -1,5 +1,6 @@
 import {ComponentChildren, FunctionComponent, h} from "preact";
 import { useEffect, useRef, useState } from "preact/hooks";
+// @ts-ignore
 import Sortable from 'sortablejs';
 
 interface SortableWrapperProps {
@@ -25,6 +26,7 @@ export const SortableWrapper: FunctionComponent<SortableWrapperProps> = ({
             sortableInstance.current = new Sortable(containerRef.current, {
                 animation: 150,
                 group: group,
+                // @ts-ignore
                 onEnd: (evt) => {
                     if (evt.oldIndex !== undefined && evt.newIndex !== undefined) {
                         onMove(evt.oldIndex, evt.newIndex);

@@ -5,7 +5,6 @@ import {
     useSidebarWidth,
     useUpdateData,
 } from "./store";
-import {useStopPropagation, useToggle, useUpdateEffect} from "../../functions/hooks";
 import {stringifyFields} from "../../functions/object";
 import {useClipboardPaste} from "./hooks/useClipboardPaste";
 import parse from "html-react-parser";
@@ -14,6 +13,11 @@ import {CSSProperties, RefObject, useEffect, useMemo, useRef, useState} from "pr
 import {Sidebar} from "./components/sidebar/sidebar";
 import {Preview} from "./components/preview/preview";
 import {BlocSelector} from "./components/blocs/blocSelector";
+import {
+    useStopPropagation,
+    useToggle,
+    useUpdateEffect
+} from "@core-cms-shared/functions/hooks";
 
 export function EditorManager({
                                   inner,

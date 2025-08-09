@@ -1,6 +1,6 @@
-import {useRef, useState} from 'react'
 import {EditorComponentData} from "../types";
-import {useEffectDebounced} from "../../../functions/hooks";
+import {useEffectDebounced} from "@core-cms-shared/functions/hooks";
+import {useRef, useState} from "preact/compat";
 
 export function usePreview(
     data: EditorComponentData,

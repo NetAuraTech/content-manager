@@ -1,13 +1,14 @@
 import {SidebarComponentProps} from "../../types";
 import {CSSProperties, memo, useMemo, useRef} from "preact/compat";
 import {useFieldFocused, useRemoveBloc, useSetFocusIndex} from "../../store";
-import {useToggle, useUpdateEffect} from "../../../../functions/hooks";
 import {strToDom} from "@core-cms-shared/functions/dom";
 import {prevent} from "@core-cms-shared/functions/functions";
 import {CopyAction} from "./actions/copyAction";
 import {translate} from "@core-cms-shared/functions/i18n";
 import {IconDown, IconTrash} from "../ui/Icons";
 import {SidebarFields} from "./sidebarFields";
+import {useToggle, useUpdateEffect} from "@core-cms-shared/functions/hooks";
+import {SidebarComponentMissing} from "./SidebarComponentMissing";
 
 export const SidebarComponent = memo(function SidebarItem({
                                                               data,

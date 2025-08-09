@@ -64,7 +64,7 @@ export function BlocSelector({iconsUrl}: BlocSelectorProps) {
         return null
     }
 
-
+    // @ts-ignore
     return <modal-dialog ref={modalRef} overlay-close={true}>
         <div className="card grid" style={{
             maxWidth: 1290,
@@ -82,6 +82,7 @@ export function BlocSelector({iconsUrl}: BlocSelectorProps) {
                         type='search'
                         placeholder={translate('content-manager.admin.editor.sidebar.component.search')}
                         value={search}
+                        // @ts-ignore
                         onChange={e => setSearch(e.target.value)}
                     />
                 </div>
@@ -119,6 +120,7 @@ export function BlocSelector({iconsUrl}: BlocSelectorProps) {
                 ))}
             </Tabs>
         </div>
+        {/*@ts-ignore */}
     </modal-dialog>
 }
 

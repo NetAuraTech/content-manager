@@ -20,6 +20,7 @@ export function Tooltip({ content, children, visible, trigger = 'mouseenter', pl
 
   useEffect(() => {
     if (elementRef.current) {
+      // @ts-ignore
       tippyInstanceRef.current = tippy(elementRef.current, {
         content: content,
         trigger: trigger,

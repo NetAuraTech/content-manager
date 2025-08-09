@@ -60,6 +60,7 @@ function PopoverTrigger({ children, asChild }: PopoverTriggerProps) {
         const child = Children.only(children) as ReactElement;
         return h(child.type, {
             ...child.props,
+            // @ts-ignore
             ref: (node: HTMLElement | null) => {
                 (triggerRef as React.MutableRefObject<HTMLElement | null>).current = node;
                 if (typeof child.ref === 'function') {
@@ -70,6 +71,7 @@ function PopoverTrigger({ children, asChild }: PopoverTriggerProps) {
             },
             onClick: (e: Event) => {
                 handleClick(e);
+                // @ts-ignore
                 if (child.props.onClick) child.props.onClick(e);
             },
         }, child.props.children);

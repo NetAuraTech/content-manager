@@ -124,8 +124,9 @@ export function Field({
             id={id}
             type="text"
             defaultValue={value}
-            is="input-attachment"
-            data-endpoint="/api/attachment"
+            is="input-media"
+            data-endpoint="/api/media"
+            // @ts-ignore
             overwrite="overwrite"
             style={{display: "none"} as CSSProperties}
         />;

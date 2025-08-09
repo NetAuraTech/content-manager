@@ -1,12 +1,11 @@
 import {EditorComponentData} from "../../types";
-import {JSX} from "preact";
 import {createPortal, useEffect, useRef, useState} from "preact/compat";
 import {usePreviewMode} from "../../store";
 import {PreviewModes} from "../../enum";
 import {PHONE_HEIGHT} from "../../constants";
-import {useAsyncEffect} from "../../../../functions/hooks";
 import {PreviewItems} from "./previewItems";
 import {useWindowSize} from '@core-cms-shared/functions/window';
+import {useAsyncEffect} from "@core-cms-shared/functions/hooks";
 
 
 type PreviewProps = {
@@ -14,7 +13,7 @@ type PreviewProps = {
     previewUrl: string
 }
 
-export function Preview({data, previewUrl}: PreviewProps): JSX {
+export function Preview({data, previewUrl}: PreviewProps) {
     const iframe = useRef<HTMLIFrameElement | null>(null)
     const [iframeRoot, setIframeRoot] = useState<HTMLElement | null>(null)
     const initialHTML = useRef<Record<string, string>>({})
@@ -24,7 +23,9 @@ export function Preview({data, previewUrl}: PreviewProps): JSX {
     const {height: windowHeight} = useWindowSize()
     let transform = undefined
 
+    // @ts-ignore
     if (previewMode === PreviewModes.PHONE && windowHeight < 844) {
+        // @ts-ignore
         transform = {transform: `scale(${windowHeight / PHONE_HEIGHT})`}
     }
 

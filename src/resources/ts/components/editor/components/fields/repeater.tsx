@@ -12,7 +12,7 @@ import {translate} from "@core-cms-shared/functions/i18n";
 import {IconDown, IconTrash} from "../ui/Icons";
 import {defineField} from "./utils";
 import {FieldsRenderer} from "../sidebar/FieldsRenderer";
-import {useToggle} from "../../../../functions/hooks";
+import {useToggle} from "@core-cms-shared/functions/hooks";
 
 
 type FieldValue = RepeaterLine[]

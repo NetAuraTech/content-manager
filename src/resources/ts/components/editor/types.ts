@@ -1,8 +1,8 @@
-import {FunctionComponent, ReactElement} from "react";
 import {PreviewModes} from "./enum";
 import {UseBoundStore} from "zustand";
 import {createStore} from "zustand/vanilla";
 import { InsertPosition } from './enum'
+import {ComponentChildren, FunctionComponent} from "preact";
 
 export type EditorComponentData = {
     _id: string
@@ -62,7 +62,7 @@ export type FieldGroupDefinition<O> = {
 
 export type FieldGroupComponent<O> = FunctionComponent<{
     options: O
-    children: ReactElement
+    children: ComponentChildren
 }>;
 
 export type FieldComponent<
@@ -120,6 +120,7 @@ export type StoreData<T extends UseBoundStore<any>> = T extends UseBoundStore<in
     : never;
 
 export type EditorManagerProps = {
+    inner?: any,
     value: EditorComponentData[]
     previewUrl: string
     name: string

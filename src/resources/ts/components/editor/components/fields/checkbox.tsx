@@ -1,7 +1,7 @@
 import {FieldComponent} from "../../types";
-import {useUniqId} from "../../../../functions/hooks";
 import {CSSProperties} from "preact/compat";
 import {defineField} from "./utils";
+import {useUniqId} from "@core-cms-shared/functions/hooks";
 
 
 type FieldArgs = {

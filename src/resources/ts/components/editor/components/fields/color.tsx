@@ -21,6 +21,7 @@ const Component: FieldComponent<ColorFieldArgs, string | null> = ({
             <ColorPicker
                 value={value}
                 onChange={onChange}
+                //@ts-ignore
                 options={options}
             />
         </div>
@@ -30,7 +31,6 @@ const Component: FieldComponent<ColorFieldArgs, string | null> = ({
 export const Color = defineField<ColorFieldArgs, string | null>({
     defaultOptions: {
         default: '',
-        colors: [] as string[],
         canAnimate: false,
     },
     render: Component,
