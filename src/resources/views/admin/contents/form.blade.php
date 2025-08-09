@@ -71,22 +71,9 @@
                     ])
                     @foreach($formFields as $field)
                         @php
-                            $fieldValue = old($field['name'], $content->{$field['name']} ?? null);
+                            $fieldValue = old($field['props']['name'], $content->{$field['props']['name']} ?? null);
                         @endphp
-                        @switch($field['type'])
-                            @case('select')
-                                @include('core-cms::shared.select', ['label' => $field['label'], 'name' => $field['name'], 'value' => $fieldValue, 'selectOptions' => collect($field['options'] ?? [])->map(function ($value, $key) {return (object)['key' => $key, 'label' => $value];})->values()->all()])
-                                @break
-                            @case('checkbox')
-                                @include('core-cms::shared.switch', ['label' => $field['label'], 'name' => $field['name'], 'value' => (bool) $fieldValue])
-                                @break
-                            @case('media_upload')
-                                @include('core-cms::shared.media-upload', ['label' => $field['label'], 'name' => $field['name'], 'value' => $fieldValue])
-                                @break
-                            @default
-                                @include('core-cms::shared.input', ['label' => $field['label'], 'name' => $field['name'], 'value' => $fieldValue, 'type' => $field['type']])
-                                @break
-                        @endswitch
+                        @include($field['template'], [...$field['props'], 'value' => $fieldValue])
                     @endforeach
                     @include('core-cms::shared.input', ['label' => __('content-manager::admin.content.published_at'), 'name' => 'published_at', 'value' => $content->published_at?->format('Y-m-d H:i:s'), 'type' => 'datepicker'])
                     <div class="text-center">

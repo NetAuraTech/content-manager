@@ -44,12 +44,10 @@ class ContentFormRequest extends FormRequest
 
         $dynamicRules = [];
         $formRegistry = app(FormRegistry::class);
-        $formFields = $formRegistry->getFormFields('content_form');
+        $validationRules = $formRegistry->getValidationRules('content_form');
 
-        foreach ($formFields as $fieldDefinition) {
-            if (isset($fieldDefinition['validation'])) {
-                $dynamicRules[$fieldDefinition['name']] = $fieldDefinition['validation'];
-            }
+        foreach ($validationRules as $key => $value) {
+            $dynamicRules[$key] = $value;
         }
 
         return array_merge($staticRules, $dynamicRules);
