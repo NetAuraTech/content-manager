@@ -7,6 +7,7 @@ use Illuminate\Support\ServiceProvider;
 use Netauratech\ContentManager\Models\Content;
 use Netauratech\ContentManager\Observers\ContentObserver;
 use Netauratech\ContentManager\Services\ContentProvider;
+use Netauratech\ContentManager\Services\ContentPurgeProvider;
 use Netauratech\CoreCms\Contracts\ContentProviderInterface;
 use Netauratech\CoreCms\Events\LangLoaded;
 use Netauratech\CoreCms\Services\Admin\MenuManager;
@@ -22,6 +23,8 @@ class ContentManagerServiceProvider extends ServiceProvider
         $this->app->extend(ContentProviderInterface::class, function ($service, $app) {
             return new ContentProvider();
         });
+
+        $this->app->tag(ContentPurgeProvider::class, 'content_purge_providers');
     }
 
     /**
