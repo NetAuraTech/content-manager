@@ -18,7 +18,7 @@ class Category extends Model
 
     public function contents(): BelongsToMany
     {
-        return $this->belongsToMany(Content::class);
+        return $this->belongsToMany(Content::class, 'content_category');
     }
 
     public function setNameAttribute(string $value): void

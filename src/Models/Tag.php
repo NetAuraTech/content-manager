@@ -18,7 +18,7 @@ class Tag extends Model
 
     public function contents(): BelongsToMany
     {
-        return $this->belongsToMany(Content::class);
+        return $this->belongsToMany(Content::class, 'content_tag');
     }
 
     public function setNameAttribute(string $value): void
