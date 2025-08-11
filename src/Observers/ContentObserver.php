@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\File;
 use JsonException;
 use Netauratech\ContentManager\Jobs\PrecacheContent;
 use Netauratech\ContentManager\Models\Content;
+use Netauratech\CoreCms\Contracts\PurgeUrlProviderInterface;
 use Netauratech\CoreCms\Models\Option;
 use Netauratech\CoreCms\Services\CacheService;
 
@@ -164,49 +165,34 @@ class ContentObserver
      */
     public function purge(Content $content): void
     {
-        $urls = [];
+        $urlsToPurge = [];
 
-        $option = Option::find('homepage');
+        /** @var PurgeUrlProviderInterface[] $providers */
+        $providers = app()->tagged('content_purge_providers');
 
-        if($content->id === $option->value) {
-            $urls[] = "/";
-        }
+        if (in_array($content->type, ['footer', 'header'])) {
+            app(CacheService::class)->clear();
 
-        switch ($content->type) {
-            case 'page':
-                $urls[] = "/{$content->slug}";
-                app(CacheService::class)->purgeItems($urls);
-                break;
-            case 'article':
-                $urls[] = "/blog/{$content->slug}";
-                $urls[] = "/blog";
-                $urls[] = "/blog/category/{$content->category->slug}";
-                app(CacheService::class)->purgeItems($urls);
-                break;
-            case 'footer':
-            case 'header':
-                app(CacheService::class)->clear();
-
-                $urls[] = "/";
-                $urls[] = "/blog";
-
-                $contents = Content::all();
-                foreach ($contents as $item) {
-                    switch ($item->type) {
-                        case 'page':
-                            $urls[] = "/{$item->slug}";
-                            break;
-                        case 'blog':
-                            $urls[] = "/blog/{$item->slug}";
-                            break;
-                    }
+            foreach ($providers as $provider) {
+                if ($provider instanceof PurgeUrlProviderInterface) {
+                    $urlsToPurge = array_merge($urlsToPurge, $provider->getAllManagedUrls());
                 }
-                break;
-            default:
-                break;
+            }
+        } else {
+            foreach ($providers as $provider) {
+                if ($provider instanceof PurgeUrlProviderInterface) {
+                    $urlsToPurge = array_merge($urlsToPurge, $provider->getUrlsToPurge($content));
+                }
+            }
         }
 
-        foreach ($urls as $url) {
+        $urlsToPurge = array_unique($urlsToPurge);
+
+        if (!empty($urlsToPurge)) {
+            app(CacheService::class)->purgeItems($urlsToPurge);
+        }
+
+        foreach ($urlsToPurge as $url) {
             PrecacheContent::dispatch(url($url));
         }
     }
