@@ -5,18 +5,19 @@ namespace Netauratech\ContentManager\Http\Controllers;
 use Illuminate\Contracts\View\View;
 use Illuminate\Routing\Controller;
 use Netauratech\CoreCms\Contracts\ContentProviderInterface;
+use Netauratech\CoreCms\Form\FormRegistry;
 use Netauratech\CoreCms\Models\Option;
 
 class PageController extends Controller
 {
-    /**
-     * @var ContentProviderInterface
-     */
     protected ContentProviderInterface $contentProvider;
 
-    public function __construct(ContentProviderInterface $contentProvider)
+    protected FormRegistry $formRegistry;
+
+    public function __construct(ContentProviderInterface $contentProvider, FormRegistry $formRegistry)
     {
         $this->contentProvider = $contentProvider;
+        $this->formRegistry = $formRegistry;
     }
 
     /**
@@ -30,18 +31,19 @@ class PageController extends Controller
         $homepageOption = Option::where('key', 'homepage')->first();
         $homepageContentId = $homepageOption ? $homepageOption->value : null;
 
-        $page = null;
+        $content = null;
         if ($homepageContentId) {
-            $page = $this->contentProvider->getContentById((int) $homepageContentId);
+            $content = $this->contentProvider->getContentById((int) $homepageContentId);
         }
 
-        if (!$page) {
+        if (!$content) {
             abort(404, 'Page d\'accueil non configurée ou introuvable.');
         }
 
         return view('content-manager::front.page', [
-            'page' => $page,
+            'content' => $content,
             'isHomepage' => true,
+            'metas' => $this->formRegistry->getFormFields('content_meta'),
         ]);
     }
 }
