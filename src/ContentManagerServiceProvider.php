@@ -8,6 +8,7 @@ use Netauratech\ContentManager\Models\Content;
 use Netauratech\ContentManager\Observers\ContentObserver;
 use Netauratech\ContentManager\Services\ContentProvider;
 use Netauratech\CoreCms\Contracts\ContentProviderInterface;
+use Netauratech\CoreCms\Events\LangLoaded;
 use Netauratech\CoreCms\Services\Admin\MenuManager;
 use Netauratech\CoreCms\Services\AssetManager;
 
@@ -58,6 +59,7 @@ class ContentManagerServiceProvider extends ServiceProvider
 
         // Lang
         $this->loadTranslationsFrom(__DIR__.'/lang', 'content-manager');
+        LangLoaded::dispatch('content-manager');
 
         // Allows you to publish translations of the package
         $this->publishes([
