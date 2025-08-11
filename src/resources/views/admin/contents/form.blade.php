@@ -73,7 +73,7 @@
                         @php
                             $fieldValue = old($field['props']['name'], $content->{$field['props']['name']} ?? null);
                         @endphp
-                        @include($field['template'], [...$field['props'], 'value' => $fieldValue])
+                        @include($field['template'], [...$field['props'], 'value' => $fieldValue, 'content' => $content])
                     @endforeach
                     @include('core-cms::shared.input', ['label' => __('content-manager::admin.content.published_at'), 'name' => 'published_at', 'value' => $content->published_at?->format('Y-m-d H:i:s'), 'type' => 'datepicker'])
                     <div class="text-center">
