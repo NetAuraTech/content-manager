@@ -7,8 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Str;
 use JsonException;
+use Netauratech\CoreCms\Contracts\CommentableInterface;
 
-class Content extends Model
+class Content extends Model implements CommentableInterface
 {
     use HasFactory;
 
@@ -50,5 +51,25 @@ class Content extends Model
         if (empty($this->attributes['slug'])) {
             $this->attributes['slug'] = Str::slug($value);
         }
+    }
+
+    /**
+     * Get the unique ID for this content.
+     * Implementation of Commentable::getId().
+     * @return int|string
+     */
+    public function getId(): int|string
+    {
+        return $this->id;
+    }
+
+    /**
+     * Get the polymorphic type of this content.
+     * Implementation of Commentable::getMorphClass().
+     * @return string
+     */
+    public function getMorphClass(): string
+    {
+        return parent::getMorphClass();
     }
 }
