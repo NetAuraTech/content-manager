@@ -32,7 +32,7 @@
     <div class="{{ join(" ", $sectionClasses) }}">
         @if(key_exists('image', $block) && $block['image'] !== "")
             <div class="margin-block-end-6 text-center">
-                {!! imageTag($block['image'], key_exists('image-alt', $block) ? $block['image-alt'] : null, $block['image-height'] ?: null, $transitionName, 'block__' . substr(md5(json_encode($block)), 0, 8) . '-img') !!}
+                {!! image_tag($block['image'], key_exists('image-alt', $block) ? $block['image-alt'] : null, $block['image-height'] ?: null, $transitionName, 'block__' . substr(md5(json_encode($block)), 0, 8) . '-img') !!}
             </div>
         @endif
         @if(key_exists('title', $block)  && $block['title'] !== "")

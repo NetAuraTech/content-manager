@@ -37,7 +37,7 @@
                     @if(key_exists('images', $block))
                         @foreach($block['images'] as $item)
                             <a href="{{ image_url($item['image']) }}">
-                                {!! imageTag($item['image'], key_exists('image-alt', $item) ? $item['image-alt'] : null, $block['row-height']) !!}
+                                {!! image_tag($item['image'], key_exists('image-alt', $item) ? $item['image-alt'] : null, $block['row-height']) !!}
                             </a>
                         @endforeach
                     @endif

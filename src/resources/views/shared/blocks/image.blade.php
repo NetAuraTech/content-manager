@@ -26,7 +26,7 @@
     @endphp
     <div class="{{ join(" ", $imageClasses) }}">
         @if(key_exists('image', $block))
-            {!! imageTag($block['image'], key_exists('image-alt', $block) ? $block['image-alt'] : null, $block['image-height'] ?: null, null, 'block__' . substr(md5(json_encode($block)), 0, 8) . '-img') !!}
+            {!! image_tag($block['image'], key_exists('image-alt', $block) ? $block['image-alt'] : null, $block['image-height'] ?: null, null, 'block__' . substr(md5(json_encode($block)), 0, 8) . '-img') !!}
         @endif
     </div>
 @overwrite
