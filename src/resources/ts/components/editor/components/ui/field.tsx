@@ -148,7 +148,7 @@ export function Field({
         if (type === 'image') {
             if (ref.current instanceof HTMLInputElement) {
                 //@ts-ignore
-                ref.current.addEventListener('attachment', e => {
+                ref.current.addEventListener('media', e => {
                     onInput(e)
                 })
             }
