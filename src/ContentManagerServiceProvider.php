@@ -2,6 +2,8 @@
 
 namespace Netauratech\ContentManager;
 
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Netauratech\ContentManager\Models\Content;
@@ -9,6 +11,7 @@ use Netauratech\ContentManager\Observers\ContentObserver;
 use Netauratech\ContentManager\Services\ContentProvider;
 use Netauratech\ContentManager\Services\ContentPurgeProvider;
 use Netauratech\CoreCms\Contracts\ContentProviderInterface;
+use Netauratech\CoreCms\Events\ContentSaved;
 use Netauratech\CoreCms\Events\LangLoaded;
 use Netauratech\CoreCms\Services\Admin\MenuManager;
 use Netauratech\CoreCms\Services\AssetManager;
@@ -86,6 +89,13 @@ class ContentManagerServiceProvider extends ServiceProvider
         });
 
         Content::observe(ContentObserver::class);
+
+        Event::listen(ContentSaved::class, function (ContentSaved $event) {
+            if($event->content->type === "template") {
+                $cache = Cache::store('database');
+                $cache->forget('options');
+            }
+        });
 
         $menuManager->registerMenuItem('content-management', [
             'label' => __('content-manager::admin.content.value'),
