@@ -79,6 +79,20 @@ class ContentProvider implements ContentProviderInterface
     }
 
     /**
+     * Retrieves all templates (Content type ‘template’).
+     *
+     * @param int $perPage
+     * @return LengthAwarePaginator
+     */
+    public function getTemplates(int $perPage = 10): LengthAwarePaginator
+    {
+        return Content::where('type', 'template')
+            ->where('status', 'published')
+            ->orderBy('title', 'asc')
+            ->paginate($perPage);
+    }
+
+    /**
      * Retrieves a content item by its ID.
      *
      * @param int $id
