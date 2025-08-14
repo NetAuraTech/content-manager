@@ -14,6 +14,22 @@
     @endforeach
 @endsection
 
+@section('header')
+    @if($options['header'] !== "")
+        @foreach($options['header']->getContent() as $block)
+            @includeIf('content-manager::shared.blocks.renderer', ['block' => $block])
+        @endforeach
+    @endif
+@endsection
+
+@section('footer')
+    @if($options['footer'] !== "")
+        @foreach($options['footer']->getContent() as $block)
+            @includeIf('content-manager::shared.blocks.renderer', ['block' => $block])
+        @endforeach
+    @endif
+@endsection
+
 @section('stylesheets')
     @php
         $cacheBuster = substr(md5(json_encode($content->updated_at)), 0, 8);
