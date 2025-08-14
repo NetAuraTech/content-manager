@@ -36,15 +36,9 @@ class ContentController extends AdminController
      */
     public function index(string $type): View
     {
-        if ($type === 'template') {
-            $contents = Content::whereIn('type', ['header', 'footer'])
+        $contents = Content::where('type', $type)
                 ->orderBy('created_at', 'desc')
                 ->paginate(20);
-        } else {
-            $contents = Content::where('type', $type)
-                ->orderBy('created_at', 'desc')
-                ->paginate(20);
-        }
 
         return view('content-manager::admin.contents.index', [
             'contents' => $contents,
@@ -112,10 +106,6 @@ class ContentController extends AdminController
 
         $type = $content->type;
 
-        if(in_array($type, ['header', 'footer'])) {
-            $type = 'template';
-        }
-
         return to_route('admin.contents.index', ['type' => $type])->with('success', __('content-manager::admin.content.updated'));
     }
 
@@ -127,10 +117,6 @@ class ContentController extends AdminController
         $content->delete();
 
         $type = $content->type;
-
-        if(in_array($type, ['header', 'footer'])) {
-            $type = 'template';
-        }
 
         return to_route('admin.contents.index', ['type' => $type])->with('success', __('content-manager::admin.content.deleted'));
     }
@@ -149,7 +135,7 @@ class ContentController extends AdminController
         $post->slug = 'lorem-ipsum-dolor';
         $post->created_at = now();
 
-        $hideHeaderFooter = in_array($type, ['template', 'header', 'footer']);
+        $hideHeaderFooter = in_array($type, ['template']);
 
         $css = "";
 

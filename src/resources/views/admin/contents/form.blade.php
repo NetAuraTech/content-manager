@@ -11,19 +11,7 @@
 @section('body')
     <section class="grid">
         <h2 class="heading-2 flex-group align-items-center">
-            @php
-                switch ($contentType) {
-                    case 'template':
-                    case 'header':
-                    case 'footer':
-                        $icon = 'template';
-                        break;
-                    default:
-                        $icon = $contentType;
-                        break;
-                }
-            @endphp
-            {!! icon($icon, 'small') !!}
+            {!! icon($contentType, 'small') !!}
             @if($content->exists)
                 {{ __('core-cms::admin.edit') }} {{ trans_choice('content-manager::admin.content.' . $contentType . '.value', 1) }}
             @else
@@ -46,19 +34,7 @@
                             value="{{ $content->content ?: '[]' }}"
                             preview="{{ route('admin.contents.preview', ['type' => $content->type]) }}"
                     ></editor-builder>
-                    @if(in_array($contentType, ['template', 'header', 'footer']))
-                        @include('core-cms::shared.select', [
-                            'label' => __('content-manager::admin.content.type.value'),
-                            'name' => 'type',
-                            'value' => old('type', $content->type),
-                            'selectOptions' => [
-                                (object)['key' => 'header', 'label' => __('content-manager::admin.content.type.header')],
-                                (object)['key' => 'footer', 'label' => __('content-manager::admin.content.type.footer')],
-                            ],
-                        ])
-                    @else
-                        <input type="hidden" name="type" value="{{ $contentType }}">
-                    @endif
+                    <input type="hidden" name="type" value="{{ $contentType }}">
                     @include('core-cms::shared.select', [
                         'label' => __('content-manager::admin.content.status.value'),
                         'name' => 'status',

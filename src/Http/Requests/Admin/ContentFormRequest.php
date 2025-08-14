@@ -37,7 +37,7 @@ class ContentFormRequest extends FormRequest
             ],
             'description' => ['nullable', 'string'],
             'content' => ['nullable', 'string'],
-            'type' => ['required', 'string', Rule::in(['page', 'article', 'header', 'footer'])],
+            'type' => ['required', 'string', Rule::in(['page', 'article', 'template'])],
             'status' => ['required', 'string', Rule::in(['draft', 'published', 'archived'])],
             'published_at' => ['nullable', 'date'],
         ];
