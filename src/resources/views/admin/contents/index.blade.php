@@ -31,7 +31,6 @@
                 <tr>
                     <th>ID</th>
                     <th>{{ __('content-manager::admin.content.title') }}</th>
-                    <th>{{ __('content-manager::admin.content.type.value') }}</th>
                     <th>{{ __('content-manager::admin.content.status.value') }}</th>
                     <th>{{ __('core-cms::admin.actions') }}</th>
                 </tr>
@@ -45,7 +44,6 @@
                         <td>
                             <a href="{{ route('admin.contents.edit', $content) }}">{{ $content->title }}</a>
                         </td>
-                        <td>{{ __('content-manager::admin.content.type.' . $content->type) }}</td>
                         <td>{{ __('content-manager::admin.content.status.' . $content->status) }}</td>
                         <td>
                             <div class="flex-group align-items-center justify-content-flex-end" style="width: initial">

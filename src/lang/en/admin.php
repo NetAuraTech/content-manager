@@ -32,13 +32,6 @@ return [
         'template' => [
             'value' => '{0}Templates|[1,1]template|[2,*]templates'
         ],
-        'type' => [
-            'article' => 'Article',
-            'page' => 'Page',
-            'header' => 'Header',
-            'footer' => 'Footer',
-            'value' => 'Type'
-        ],
         'status' => [
             'archived' => 'Archived',
             'draft' => 'Draft',

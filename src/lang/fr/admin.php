@@ -32,13 +32,6 @@ return [
         'template' => [
             'value' => '{0}Modèles|[1,1]un modèle|[2,*]les modèles'
         ],
-        'type' => [
-            'article' => 'Article',
-            'page' => 'Page',
-            'header' => 'En-tête',
-            'footer' => 'Pied de page',
-            'value' => 'Type'
-        ],
         'status' => [
             'archived' => 'Archivé',
             'draft' => 'Brouillon',
