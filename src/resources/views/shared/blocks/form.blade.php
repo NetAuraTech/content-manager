@@ -77,7 +77,7 @@
                 @endforeach
                 <div class="form-switch">
                     <input type="checkbox" id="consentement" name="consentement" role="switch" required class="form-control">
-                    <label for="consentement"><span class="switch"></span><span>{{ __('core-cms::core.form.consentement') }} <a href="{{ route('page.show', $options['privacy-policy']) }}" target="_blank">{{ __('core-cms::core.privacy-policy') }}</a>.</span></label>
+                    <label for="consentement"><span class="switch"></span><span>{{ __('core-cms::core.form.consentement') }} <a href="{{ route('page.show', $options['privacy-policy']->slug) }}" target="_blank">{{ __('core-cms::core.privacy-policy') }}</a>.</span></label>
                 </div>
                 @include('core-cms::shared.captcha', ['label' => __('core-cms::core.captcha.value'), 'name' => 'captcha'])
                 <div class="flex-group">
