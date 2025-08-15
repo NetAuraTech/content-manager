@@ -8,6 +8,28 @@
     @endif
 @endsection
 
+@section('javascripts_footer')
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const options = [
+                    @foreach(array_merge($pages->items(), $articles->items()) as $post)
+                {
+                    label: "{{ $post->type }} - {{ $post->title }}",
+                    value: JSON.stringify({!! json_encode([
+                        'path'  => $post->type . '.show',
+                        'label' => $post->title,
+                        'slug'  => $post->slug,
+                    ], JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE) !!})
+                }@if(!$loop->last),@endif
+                @endforeach
+            ];
+            if (window.editor && typeof window.editor.initializeTheme === 'function') {
+                window.editor.initializeTheme(options);
+            }
+        });
+    </script>
+@endsection
+
 @section('body')
     <section class="grid">
         <h2 class="heading-2 flex-group align-items-center">

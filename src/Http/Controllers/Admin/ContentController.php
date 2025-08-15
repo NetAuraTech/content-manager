@@ -10,6 +10,7 @@ use JsonException;
 use Netauratech\ContentManager\Http\Requests\Admin\ContentFormRequest;
 use Netauratech\ContentManager\Models\Content;
 use Netauratech\ContentManager\Observers\ContentObserver;
+use Netauratech\CoreCms\Contracts\ContentProviderInterface;
 use Netauratech\CoreCms\Events\ContentSaved;
 use Netauratech\CoreCms\Form\FormRegistry;
 use Netauratech\CoreCms\Http\Controllers\AdminController;
@@ -23,11 +24,13 @@ class ContentController extends AdminController
         'content-delete' => ['destroy'],
     ];
 
+    protected ContentProviderInterface $contentProvider;
     protected FormRegistry $formRegistry;
 
-    public function __construct(FormRegistry $formRegistry)
+    public function __construct(ContentProviderInterface $contentProvider, FormRegistry $formRegistry)
     {
         parent::__construct();
+        $this->contentProvider = $contentProvider;
         $this->formRegistry = $formRegistry;
     }
 
@@ -61,7 +64,9 @@ class ContentController extends AdminController
         return view('content-manager::admin.contents.form', [
             'content' => $content,
             'contentType' => $type,
-            'formFields' => $formFields
+            'formFields' => $formFields,
+            'articles' => $this->contentProvider->getArticles(999999999999999999),
+            'pages' => $this->contentProvider->getPages(999999999999999999),
         ]);
     }
 
@@ -90,7 +95,9 @@ class ContentController extends AdminController
         return view('content-manager::admin.contents.form', [
             'content' => $content,
             'contentType' => $content->type,
-            'formFields' => $formFields
+            'formFields' => $formFields,
+            'articles' => $this->contentProvider->getArticles(999999999999999999),
+            'pages' => $this->contentProvider->getPages(999999999999999999),
         ]);
     }
 

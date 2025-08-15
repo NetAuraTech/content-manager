@@ -31,6 +31,7 @@ const templates: EditorComponentTemplate[] = []
 export class Editor {
     jsonFetchOrFlash = jsonFetchOrFlash
     components: EditorComponentDefinition[]
+    options: SelectOption[] = []
 
     /**
      * Defines the custom element
@@ -147,6 +148,10 @@ export class Editor {
         }
 
         customElements.define(elementName, EditorElement);
+    }
+
+    setOptions(options: SelectOption[] = []) {
+        this.options = options;
     }
 
     registerComponent(name: string, definition: EditorComponentDefinition) {
@@ -526,7 +531,7 @@ export class Editor {
         )
     }
 
-    links = (options: SelectOption[] = []) => {
+    links = () => {
         return [
             this.fields.Text('label', {
                 label: translate('content-manager.admin.editor.sidebar.tabs.label.value'),
@@ -583,7 +588,7 @@ export class Editor {
                             }),
                             label: translate('content-manager.admin.editor.sidebar.tabs.link.login'),
                         },
-                        ...options,
+                        ...this.options,
                     ],
                 })
                 .when('type', 'internal'),
@@ -635,7 +640,7 @@ export class Editor {
         } as RepeaterFieldArgs)
     }
 
-    registerComponents(components: EditorComponentDefinition[], options: SelectOption[]) {
+    registerComponents(components: EditorComponentDefinition[]) {
         this.components = components;
         this.components.push({
             _id: 'theme-switcher',
@@ -662,7 +667,7 @@ export class Editor {
                 } as HtmlTextFieldArgs),
                 this.fields.Repeater('ctas', {
                     addLabel: translate('core-cms.admin.add'),
-                    fields: [...this.links(options)],
+                    fields: [...this.links()],
                     label: translate('content-manager.admin.editor.sidebar.tabs.ctas')
                 } as RepeaterFieldArgs),
             ]
@@ -677,7 +682,7 @@ export class Editor {
                 this.titleField('title', translate('content-manager.admin.editor.sidebar.tabs.title.value')),
                 this.fields.Repeater('links', {
                     addLabel: translate('core-cms.admin.add'),
-                    fields: [...this.links(options)],
+                    fields: [...this.links()],
                     label: translate('content-manager.admin.editor.sidebar.tabs.links')
                 } as RepeaterFieldArgs),
             ]
@@ -886,7 +891,7 @@ export class Editor {
     }
 
     colors() {
-        const ret = [];
+        const ret: any[] = [];
 
         const colors = [
             'primary',
@@ -912,6 +917,7 @@ export class Editor {
             const intensities = ['100', '200', '300', '400', '500', '600', '700', '800', '900'];
 
             intensities.forEach(intensity => {
+                // @ts-ignore
                 ret[`${color}-${intensity}`] = `var(--${color}-${intensity})`;
             })
         })
