@@ -42,7 +42,7 @@
                         }
 
                     @endphp
-                    <li><a href="{{ $path }}" {{ menu_active($menu, $path) }}>{{ $label }}</a></li>
+                    <li><a href="{{ $path }}" {{ menu_active($path) }}>{{ $label }}</a></li>
                 @endforeach
             @endif
         </ul>
