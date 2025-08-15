@@ -19,7 +19,7 @@
     @endphp
     <div class="{{ join(" ", $classes) }}">
         @foreach($block['layout-items'] as $item)
-            @includeIf('shared.blocks.renderer', ['block' => $item, 'key' => 'item-type', 'props' => ['useContainer' => false, 'section' => 'div']])
+            @includeIf('content-manager::shared.blocks.renderer', ['block' => $item, 'key' => 'item-type', 'props' => ['useContainer' => false, 'section' => 'div']])
         @endforeach
     </div>
 @overwrite

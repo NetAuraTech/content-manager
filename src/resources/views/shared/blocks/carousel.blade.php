@@ -35,7 +35,7 @@
                  style="--items: {{ $block['items-per-page'] }}">
                 @if(key_exists('layout-items', $block))
                     @foreach($block['layout-items'] as $item)
-                        @includeIf('shared.blocks.renderer', ['block' => $item, 'key' => 'item-type', 'props' => ['useContainer' => false, 'section' => 'div']])
+                        @includeIf('content-manager::shared.blocks.renderer', ['block' => $item, 'key' => 'item-type', 'props' => ['useContainer' => false, 'section' => 'div']])
                     @endforeach
                 @endif
             </div>
