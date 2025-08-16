@@ -10,11 +10,13 @@ use Netauratech\ContentManager\Models\Content;
 use Netauratech\ContentManager\Observers\ContentObserver;
 use Netauratech\ContentManager\Services\ContentProvider;
 use Netauratech\ContentManager\Services\ContentPurgeProvider;
+use Netauratech\ContentManager\Services\Shortcode\TemplateShortcode;
 use Netauratech\CoreCms\Contracts\ContentProviderInterface;
 use Netauratech\CoreCms\Events\ContentSaved;
 use Netauratech\CoreCms\Events\LangLoaded;
 use Netauratech\CoreCms\Services\Admin\MenuManager;
 use Netauratech\CoreCms\Services\AssetManager;
+use Netauratech\CoreCms\Services\Shortcode\ShortcodeRegistry;
 
 class ContentManagerServiceProvider extends ServiceProvider
 {
@@ -33,7 +35,7 @@ class ContentManagerServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
-    public function boot(MenuManager $menuManager, AssetManager $assetManager): void
+    public function boot(MenuManager $menuManager, AssetManager $assetManager, ShortcodeRegistry $shortcodeRegistry): void
     {
         $this->publishes([
             __DIR__.'/database/migrations/' => database_path('migrations'),
@@ -71,6 +73,8 @@ class ContentManagerServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__.'/lang' => $this->app->langPath('vendor/content-manager'),
         ], 'content-manager-translations');
+
+        $shortcodeRegistry->register('template', new TemplateShortcode());
 
         // Routes admin
         Route::group([

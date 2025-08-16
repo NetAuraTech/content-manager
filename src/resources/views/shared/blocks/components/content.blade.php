@@ -12,5 +12,5 @@
 <div
     class="{{ join(" ", $contentClasses) }}"
 >
-    @shortcode($block['content'], ['menu' => $menu, 'content' => $content ?? ''])
+    @shortcode($block['content'], ['content' => $content ?? ''])
 </div>
