@@ -16,7 +16,7 @@
         'automatic-gallery',
         'carousel',
         'contact',
-        'image',
+        'media',
         'links',
         'section',
         'theme-switcher',

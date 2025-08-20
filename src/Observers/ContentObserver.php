@@ -124,16 +124,16 @@ class ContentObserver
         }
 
         // --- Img block ---
-        if (!empty($block['image'])) {
-            $imageRules = "";
-            $imageClass = "{$baseClass}-img";
+        if (!empty($block['media'])) {
+            $mediaRules = "";
+            $mediaClass = "{$baseClass}-media";
 
-            if (isset($block['image-opacity'])) {
-                $imageRules .= "opacity:{$block['image-opacity']};";
+            if (isset($block['media-opacity'])) {
+                $mediaRules .= "opacity:{$block['media-opacity']};";
             }
 
-            if (trim($imageRules) !== "") {
-                $css .= "{$imageClass}{{$imageRules}}";
+            if (trim($mediaRules) !== "") {
+                $css .= "{$mediaClass}{{$mediaRules}}";
             }
         }
 

@@ -34,10 +34,10 @@
         @if(key_exists('row-height', $block))
             <light-box>
                 <automatic-gallery gap="{{ $block['gap'] }}rem" rowHeight="{{ $block['row-height'] }}">
-                    @if(key_exists('images', $block))
-                        @foreach($block['images'] as $item)
-                            <a href="{{ image_url($item['image']) }}">
-                                {!! image_tag($item['image'], key_exists('image-alt', $item) ? $item['image-alt'] : null, $block['row-height']) !!}
+                    @if(key_exists('medias', $block))
+                        @foreach($block['medias'] as $item)
+                            <a href="{{ image_url($item['media']) }}">
+                                {!! image_tag($item['media'], key_exists('media-alt', $item) ? $item['media-alt'] : null, $block['row-height']) !!}
                             </a>
                         @endforeach
                     @endif

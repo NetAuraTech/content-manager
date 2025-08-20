@@ -14,7 +14,7 @@ type FieldProps = {
     step?: number,
     min?: number,
     max?: number,
-    type?: 'input' | 'text' | 'textarea' | 'select' | 'image' | 'datepicker' | 'number' | 'range' | 'color',
+    type?: 'input' | 'text' | 'textarea' | 'select' | 'media' | 'datepicker' | 'number' | 'range' | 'color',
     label?: ComponentChildren
     help?: ReactNode
     options?: Option[],
@@ -115,7 +115,7 @@ export function Field({
         </select>
     }
 
-    if (type === 'image') {
+    if (type === 'media') {
         canClear = true;
         render = <input
             ref={ref}
@@ -145,7 +145,7 @@ export function Field({
     }
 
     useEffect(() => {
-        if (type === 'image') {
+        if (type === 'media') {
             if (ref.current instanceof HTMLInputElement) {
                 //@ts-ignore
                 ref.current.addEventListener('media', e => {
@@ -170,9 +170,8 @@ export function Field({
             }
         }
 
-        if (type === 'image') {
-            // TODO:
-            /*if (ref.current instanceof InputAttachmentElement) {
+        if (type === 'media') {
+            if (ref.current) {
                 ref.current.value = "";
                 const changeEvent = new Event("input", {bubbles: true});
                 Object.defineProperty(changeEvent, "target", {
@@ -180,11 +179,12 @@ export function Field({
                     value: {value: null}
                 });
 
+                //@ts-ignore
                 ref.current.setAttachment({id: '', url: null})
 
                 ref.current.dispatchEvent(changeEvent);
                 onInput(changeEvent);
-            }*/
+            }
         }
     }
 

@@ -212,15 +212,15 @@ return [
                 ],
                 'header' => 'En-tête',
                 'hero' => 'Héro',
-                'image' => [
+                'media' => [
                     'alt' => 'Alt',
-                    'height' => [
-                        'help' => 'Laisser vide pour une hauteur automatique.',
-                        'value' => 'Hauteur',
+                    'width' => [
+                        'help' => 'Laisser vide pour une largeur automatique.',
+                        'value' => 'Largeur',
                     ],
-                    'value' => 'Image',
+                    'value' => 'Média',
                 ],
-                'images' => 'Images',
+                'medias' => 'Médias',
                 'label' => [
                     'help' => 'Laisser vide pour conserver le nom de la page.',
                     'value' => 'Étiquette',

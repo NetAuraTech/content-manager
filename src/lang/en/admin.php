@@ -212,15 +212,15 @@ return [
                 ],
                 'header' => 'Header',
                 'hero' => 'Hero',
-                'image' => [
+                'media' => [
                     'alt' => 'Alt',
-                    'height' => [
-                        'help' => 'Leave empty for automatic height.',
-                        'value' => 'Height',
+                    'width' => [
+                        'help' => 'Leave empty for automatic width.',
+                        'value' => 'Width',
                     ],
-                    'value' => 'Image',
+                    'value' => 'Media',
                 ],
-                'images' => 'Images',
+                'medias' => 'Medias',
                 'label' => [
                     'help' => 'Leave empty to keep the page name.',
                     'value' => 'Label',

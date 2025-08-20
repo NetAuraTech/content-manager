@@ -21,7 +21,7 @@ import {Row} from "../components/editor/components/fields/layouts/rows";
 import {Range, RangeFieldArgs} from "../components/editor/components/fields/range";
 import {Repeater, RepeaterFieldArgs} from "../components/editor/components/fields/repeater";
 import {HtmlText, HtmlTextFieldArgs} from "../components/editor/components/fields/htmlText";
-import {Image, ImageFieldArgs} from "../components/editor/components/fields/image";
+import {Media, MediaFieldArgs} from "../components/editor/components/fields/media";
 import {DatePicker} from "../components/editor/components/fields/datePicker";
 import {Checkbox} from "../components/editor/components/fields/checkbox";
 
@@ -30,7 +30,7 @@ const templates: EditorComponentTemplate[] = []
 
 export class Editor {
     jsonFetchOrFlash = jsonFetchOrFlash
-    components: EditorComponentDefinition[]
+    components: EditorComponentDefinition[] = []
     options: SelectOption[] = []
 
     /**
@@ -249,23 +249,23 @@ export class Editor {
         ]);
     }
 
-    imageField(name: string, label: string) {
+    mediaField(name: string) {
         return [
             this.layouts.Row([
-                this.fields.Image(name, {
-                    label: label,
+                this.fields.Media(name, {
+                    label: translate('content-manager.admin.editor.sidebar.tabs.media.value'),
                     canAnimate: true
-                } as ImageFieldArgs),
+                } as MediaFieldArgs),
                 this.fields.Text(`${name}-alt`, {
-                    label: translate('content-manager.admin.editor.sidebar.tabs.image.alt'),
+                    label: translate('content-manager.admin.editor.sidebar.tabs.media.alt'),
                     multiline: false,
                     canAnimate: false
                 } as TextFieldArgs).when(name),
             ] as Array<FieldDefinition>),
             this.layouts.Row([
                 this.fields.Number(`${name}-height`, {
-                    label: translate('content-manager.admin.editor.sidebar.tabs.image.height.value'),
-                    help: translate('content-manager.admin.editor.sidebar.tabs.image.height.help')
+                    label: translate('content-manager.admin.editor.sidebar.tabs.media.width.value'),
+                    help: translate('content-manager.admin.editor.sidebar.tabs.media.width.help')
                 } as NumberFieldArgs).when(name),
                 this.fields.Number(`${name}-opacity`, {
                     label: translate('content-manager.admin.editor.sidebar.tabs.background.image.opacity'),
@@ -333,8 +333,10 @@ export class Editor {
 
         fields.map(field => {
             if (!field.group && "name" in field) {
+                //@ts-ignore
                 if (field.options.canAnimate && field.shouldRender) {
                     const newField = this.animationField(field.name, field.options.label);
+                    //@ts-ignore
                     newField.conditions = field.conditions;
                     animationFields.push(newField);
                 }
@@ -344,7 +346,9 @@ export class Editor {
                 field.fields.map(subField => {
                     if (!subField.group && "name" in subField) {
                         if (subField.options.canAnimate) {
+                            //@ts-ignore
                             const newField = this.animationField(subField.name, subField.options.label);
+                            //@ts-ignore
                             newField.conditions = field.conditions;
                             animationFields.push(newField);
                         }
@@ -371,9 +375,9 @@ export class Editor {
                             colors: Object.values(this.colors()),
                             default: 'transparent'
                         } as ColorFieldArgs),
-                        this.fields.Image('background-image', {
+                        this.fields.Media('background-image', {
                             label: translate('content-manager.admin.editor.sidebar.tabs.background.image.value')
-                        } as ImageFieldArgs),
+                        } as MediaFieldArgs),
                         this.fields.Number('background-image-opacity', {
                             label: translate('content-manager.admin.editor.sidebar.tabs.background.image.opacity'),
                             default: "1",
@@ -657,7 +661,7 @@ export class Editor {
             category: translate('content-manager.admin.editor.category.template'),
             canEditAppearance: true,
             fields: [
-                ...this.imageField('image', translate('content-manager.admin.editor.sidebar.tabs.image.value')),
+                ...this.mediaField('media'),
                 this.titleField('title', translate('content-manager.admin.editor.sidebar.tabs.title.value')),
                 this.fields.HtmlText('content', {
                     label: translate('content-manager.admin.editor.sidebar.tabs.content'),
@@ -710,23 +714,23 @@ export class Editor {
                     default: "1",
                     step: .5
                 } as NumberFieldArgs),
-                this.fields.Repeater('images', {
+                this.fields.Repeater('medias', {
                     addLabel: translate('core-cms.admin.add'),
                     fields: [
-                        ...this.imageField('image', translate('content-manager.admin.editor.sidebar.tabs.image.value')),
+                        ...this.mediaField('media'),
                     ],
-                    label: translate('content-manager.admin.editor.sidebar.tabs.images')
+                    label: translate('content-manager.admin.editor.sidebar.tabs.medias')
                 } as RepeaterFieldArgs),
             ]
         } as EditorComponentDefinition);
 
         this.components.push({
-            _id: 'image',
-            title: translate('content-manager.admin.editor.sidebar.tabs.image.value'),
+            _id: 'media',
+            title: translate('content-manager.admin.editor.sidebar.tabs.media.value'),
             category: translate('content-manager.admin.editor.category.template'),
             canEditAppearance: true,
             fields: [
-                ...this.imageField('image', translate('content-manager.admin.editor.sidebar.tabs.image.value')),
+                ...this.mediaField('media'),
             ]
         } as EditorComponentDefinition);
 
@@ -935,7 +939,7 @@ export class Editor {
         Repeater,
         Text,
         Select,
-        Image,
+        Media,
         DatePicker,
         Number,
         Range,

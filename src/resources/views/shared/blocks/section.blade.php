@@ -25,14 +25,14 @@
         }
 
         $transitionName = null;
-        if (key_exists('image-transition-name', $block) && $block['image-transition-name'] !== "") {
-            $transitionName = $block['image-transition-name'];
+        if (key_exists('media-transition-name', $block) && $block['media-transition-name'] !== "") {
+            $transitionName = $block['media-transition-name'];
         }
     @endphp
     <div class="{{ join(" ", $sectionClasses) }}">
-        @if(key_exists('image', $block) && $block['image'] !== "")
+        @if(key_exists('media', $block) && $block['media'] !== "")
             <div class="margin-block-end-6 text-center">
-                {!! image_tag($block['image'], key_exists('image-alt', $block) ? $block['image-alt'] : null, $block['image-height'] ?: null, $transitionName, 'block__' . substr(md5(json_encode($block)), 0, 8) . '-img') !!}
+                {!! image_tag($block['media'], key_exists('media-alt', $block) ? $block['media-alt'] : null, $block['media-width'] ?: null, $transitionName, 'block__' . substr(md5(json_encode($block)), 0, 8) . '-media') !!}
             </div>
         @endif
         @if(key_exists('title', $block)  && $block['title'] !== "")

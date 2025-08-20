@@ -3,7 +3,7 @@ import {defineField} from "./utils";
 import {Field} from "../ui/field";
 import {JSX} from "preact";
 
-export type ImageFieldArgs = {
+export type MediaFieldArgs = {
     label?: string
     default?: string,
     canAnimate?: boolean
@@ -14,20 +14,20 @@ const Component: ({value, onChange, options}: { value: any; onChange: any; optio
                                                           onChange,
                                                           options,
                                                       }) => {
-    const id = useUniqId('imageinput')
+    const id = useUniqId('media-input')
 
     return (
         <Field
             id={id}
             label={options.label}
-            type="image"
+            type="media"
             value={value}
             onInput={e => onChange((e.target as HTMLInputElement).value)}
         />
     )
 }
 
-export const Image = defineField<ImageFieldArgs, string>({
+export const Media = defineField<MediaFieldArgs, string>({
     defaultOptions: {
         default: '',
         canAnimate: false
