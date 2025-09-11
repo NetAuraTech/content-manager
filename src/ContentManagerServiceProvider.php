@@ -4,8 +4,6 @@ namespace Netauratech\ContentManager;
 
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\Route;
-use Illuminate\Support\ServiceProvider;
 use Netauratech\ContentManager\Models\Content;
 use Netauratech\ContentManager\Observers\ContentObserver;
 use Netauratech\ContentManager\Services\ContentProvider;
@@ -13,18 +11,33 @@ use Netauratech\ContentManager\Services\ContentPurgeProvider;
 use Netauratech\ContentManager\Services\Shortcode\TemplateShortcode;
 use Netauratech\CoreCms\Contracts\ContentProviderInterface;
 use Netauratech\CoreCms\Events\ContentSaved;
-use Netauratech\CoreCms\Events\LangLoaded;
+use Netauratech\CoreCms\Services\AbstractCmsServiceProvider;
 use Netauratech\CoreCms\Services\Admin\MenuManager;
-use Netauratech\CoreCms\Services\AssetManager;
 use Netauratech\CoreCms\Services\Shortcode\ShortcodeRegistry;
 
-class ContentManagerServiceProvider extends ServiceProvider
+class ContentManagerServiceProvider extends AbstractCmsServiceProvider
 {
-    /**
-     * Register any application services.
-     */
+    protected function getPackageName(): string
+    {
+        return 'content-manager';
+    }
+
+    protected function getBootstrapConfig(): array
+    {
+        $config = parent::getBootstrapConfig();
+
+        $config['routes']['api'] = false;
+        $config['routes']['auth'] = false;
+        $config['publishes']['config'] = false;
+        $config['publishes']['assets'] = false;
+
+        return $config;
+    }
+
     public function register(): void
     {
+        parent::register();
+
         $this->app->extend(ContentProviderInterface::class, function ($service, $app) {
             return new ContentProvider();
         });
@@ -32,72 +45,16 @@ class ContentManagerServiceProvider extends ServiceProvider
         $this->app->tag(ContentPurgeProvider::class, 'content_purge_providers');
     }
 
-    /**
-     * Bootstrap any application services.
-     */
-    public function boot(MenuManager $menuManager, AssetManager $assetManager, ShortcodeRegistry $shortcodeRegistry): void
-    {
-        $this->publishes([
-            __DIR__.'/database/migrations/' => database_path('migrations'),
-        ], 'content-manager-migrations');
-
-        $this->loadMigrationsFrom(__DIR__.'/database/migrations');
-
-        $this->publishes([
-            __DIR__.'/database/seeders/' => database_path('seeders')
-        ], 'content-manager-seeders');
-
-        // Load all views
-        $this->loadViewsFrom(__DIR__.'/resources/views', 'content-manager');
-
-        // Register Assets
-        $packageBasePath = realpath(__DIR__ . '/../');
-        $composerJsonPath = $packageBasePath . '/composer.json';
-
-        $assetManager->registerTranslationPath('content-manager', __DIR__.'/lang');
-
-        if (file_exists($composerJsonPath)) {
-            $composerJsonContent = json_decode(file_get_contents($composerJsonPath), true);
-            if (isset($composerJsonContent['name'])) {
-                $packageName = $composerJsonContent['name'];
-            }
-            $assetManager->registerAppJs("vendor/{$packageName}/src/resources/ts/app.ts");
-            $assetManager->registerAdminJs("vendor/{$packageName}/src/resources/ts/admin.ts");
-        }
-
-        // Lang
-        $this->loadTranslationsFrom(__DIR__.'/lang', 'content-manager');
-        LangLoaded::dispatch('content-manager');
-
-        // Allows you to publish translations of the package
-        $this->publishes([
-            __DIR__.'/lang' => $this->app->langPath('vendor/content-manager'),
-        ], 'content-manager-translations');
+    public function boot(MenuManager $menuManager, ShortcodeRegistry $shortcodeRegistry): void {
+        $this->bootstrapPackage();
 
         $shortcodeRegistry->register('template', new TemplateShortcode());
-
-        // Routes admin
-        Route::group([
-            'middleware' => config('core-cms.admin.middleware'),
-            'prefix' => config('core-cms.admin.prefix'),
-            'as' => config('core-cms.admin.name'),
-        ], function () {
-            $this->loadRoutesFrom(__DIR__.'/routes/admin.php');
-        });
-
-        //Route Web
-        Route::group([
-            'middleware' => ['web'],
-        ], function () {
-            $this->loadRoutesFrom(__DIR__.'/routes/web.php');
-        });
 
         Content::observe(ContentObserver::class);
 
         Event::listen(ContentSaved::class, function (ContentSaved $event) {
-            if($event->content->type === "template") {
-                $cache = Cache::store('database');
-                $cache->forget('options');
+            if ($event->content->type === "template") {
+                Cache::store('database')->forget('options');
             }
         });
 
