@@ -70,7 +70,7 @@ The service provider is automatically registered through Laravel's package disco
 Publish and run the migrations:
 
 ```bash
-php artisan vendor:publish --tag=content-manager-migrations
+php artisan vendor:publish --tag=core-cms-migrations
 php artisan migrate
 ```
 
@@ -79,7 +79,7 @@ php artisan migrate
 Publish and run the seeders:
 
 ```bash
-php artisan vendor:publish --tag=content-manager-seeders
+php artisan vendor:publish --tag=core-cms-seeders
 php artisan db:seed --class=ContentSeeder
 ```
 
@@ -88,7 +88,7 @@ php artisan db:seed --class=ContentSeeder
 Publish translation files to customize messages:
 
 ```bash
-php artisan vendor:publish --tag=content-manager-translations
+php artisan vendor:publish --tag=core-cms-translations
 ```
 
 ## Usage
