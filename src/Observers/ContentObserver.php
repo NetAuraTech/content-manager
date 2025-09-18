@@ -7,9 +7,8 @@ use Illuminate\Support\Facades\File;
 use JsonException;
 use Netauratech\ContentManager\Jobs\PrecacheContent;
 use Netauratech\ContentManager\Models\Content;
+use Netauratech\CoreCms\Contracts\CacheServiceInterface;
 use Netauratech\CoreCms\Contracts\PurgeUrlProviderInterface;
-use Netauratech\CoreCms\Models\Option;
-use Netauratech\CoreCms\Services\CacheService;
 
 class ContentObserver
 {
@@ -171,7 +170,7 @@ class ContentObserver
         $providers = app()->tagged('content_purge_providers');
 
         if (in_array($content->type, ['footer', 'header'])) {
-            app(CacheService::class)->clear();
+            app(CacheServiceInterface::class)->clear();
 
             foreach ($providers as $provider) {
                 if ($provider instanceof PurgeUrlProviderInterface) {
@@ -189,7 +188,7 @@ class ContentObserver
         $urlsToPurge = array_unique($urlsToPurge);
 
         if (!empty($urlsToPurge)) {
-            app(CacheService::class)->purgeItems($urlsToPurge);
+            app(CacheServiceInterface::class)->purgeItems($urlsToPurge);
         }
 
         foreach ($urlsToPurge as $url) {
