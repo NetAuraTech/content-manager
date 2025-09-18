@@ -25,8 +25,8 @@
                 @csrf
                 @method($category->exists ? 'put' : 'post')
                 <div class="grid">
-                    @include('core-cms::shared.input', ['label' => __('content-manager::admin.content.name'),'name' => 'name','value' => old('name', $category->name)])
-                    @include('core-cms::shared.input', ['label' => __('content-manager::admin.content.slug'), 'name' => 'slug', 'value' => old('slug', $category->slug)])
+                    @include('core-cms::shared.form-field', ['label' => __('content-manager::admin.content.name'),'name' => 'name','value' => old('name', $category->name)])
+                    @include('core-cms::shared.form-field', ['label' => __('content-manager::admin.content.slug'), 'name' => 'slug', 'value' => old('slug', $category->slug)])
                     <div class="text-center">
                         <button type="submit" class="button" data-type="primary">{{ __('core-cms::admin.save') }}</button>
                     </div>

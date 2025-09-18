@@ -32,7 +32,6 @@
                 @include('content-manager::shared.blocks.components.content', ['block' => $block])
         @endif
         <div class="card margin-block-start-6">
-            @include('core-cms::shared.partials.flash', ['floating' => false, 'duration' => 10])
             <form
                 class="grid"
                 method="post"
@@ -40,12 +39,12 @@
             >
                 @csrf
                 <div class="grid-auto-fit align-items-center" style="width: initial;">
-                    @include('core-cms::shared.input', ['label' => __('core-cms::core.form.contact.lastname'), 'name' => 'lastname',])
-                    @include('core-cms::shared.input', ['label' => __('core-cms::core.form.contact.firstname'), 'name' => 'firstname',])
+                    @include('core-cms::shared.form-field', ['label' => __('core-cms::core.form.contact.lastname'), 'name' => 'lastname',])
+                    @include('core-cms::shared.form-field', ['label' => __('core-cms::core.form.contact.firstname'), 'name' => 'firstname',])
                 </div>
                 <div class="grid-auto-fit align-items-center" style="width: initial;">
-                    @include('core-cms::shared.input', ['label' => __('core-cms::core.form.contact.email'), 'name' => 'email', 'type' => 'email',])
-                    @include('core-cms::shared.input', ['label' => __('core-cms::core.form.contact.phone'), 'name' => 'phone'])
+                    @include('core-cms::shared.form-field', ['label' => __('core-cms::core.form.contact.email'), 'name' => 'email', 'type' => 'email',])
+                    @include('core-cms::shared.form-field', ['label' => __('core-cms::core.form.contact.phone'), 'name' => 'phone'])
                 </div>
                 @php
                     $subjects = collect([]);
@@ -55,8 +54,8 @@
                     }
 
                 @endphp
-                @include('core-cms::shared.select', ['label' => __('core-cms::core.form.contact.subject'), 'name' => 'subject', 'selectOptions' => $subjects->map(fn($s) => (object)['key' => $s['option'],'label' => $s['option']])])
-                @include('core-cms::shared.input', ['label' => __('core-cms::core.form.contact.message'), 'name' => 'content', 'type' => 'textarea'])
+                @include('core-cms::shared.form-field', ['type' => 'select', 'label' => __('core-cms::core.form.contact.subject'), 'name' => 'subject', 'selectOptions' => $subjects->map(fn($s) => (object)['key' => $s['option'],'label' => $s['option']])])
+                @include('core-cms::shared.form-field', ['label' => __('core-cms::core.form.contact.message'), 'name' => 'content', 'type' => 'textarea'])
                 @include('core-cms::shared.captcha', ['label' => __('core-cms::core.captcha.value'), 'name' => 'captcha'])
 
                 <div class="flex-group">

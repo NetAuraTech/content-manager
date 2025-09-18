@@ -47,9 +47,9 @@
                 @csrf
                 @method($content->exists ? 'put' : 'post')
                 <div class="grid">
-                    @include('core-cms::shared.input', ['label' => __('content-manager::admin.content.title'), 'name' => 'title', 'value' => $content->title])
-                    @include('core-cms::shared.input', ['label' => __('content-manager::admin.content.slug'), 'name' => 'slug', 'value' => $content->slug])
-                    @include('core-cms::shared.input', ['label' => __('content-manager::admin.content.description'), 'name' => 'description', 'value' => $content->description, 'type' => 'textarea'])
+                    @include('core-cms::shared.form-field', ['label' => __('content-manager::admin.content.title'), 'name' => 'title', 'value' => $content->title])
+                    @include('core-cms::shared.form-field', ['label' => __('content-manager::admin.content.slug'), 'name' => 'slug', 'value' => $content->slug])
+                    @include('core-cms::shared.form-field', ['label' => __('content-manager::admin.content.description'), 'name' => 'description', 'value' => $content->description, 'type' => 'textarea'])
                     <editor-builder
                             id="content"
                             name="content"
@@ -57,7 +57,8 @@
                             preview="{{ route('admin.contents.preview', ['type' => $content->type]) }}"
                     ></editor-builder>
                     <input type="hidden" name="type" value="{{ $contentType }}">
-                    @include('core-cms::shared.select', [
+                    @include('core-cms::shared.form-field', [
+                        'type' => 'select',
                         'label' => __('content-manager::admin.content.status.value'),
                         'name' => 'status',
                         'value' => old('status', $content->status),
@@ -73,7 +74,7 @@
                         @endphp
                         @include($field['template'], [...$field['props'], 'value' => $fieldValue, 'content' => $content])
                     @endforeach
-                    @include('core-cms::shared.input', ['label' => __('content-manager::admin.content.published_at'), 'name' => 'published_at', 'value' => $content->published_at?->format('Y-m-d H:i:s'), 'type' => 'datepicker'])
+                    @include('core-cms::shared.form-field', ['label' => __('content-manager::admin.content.published_at'), 'name' => 'published_at', 'value' => $content->published_at?->format('Y-m-d H:i:s'), 'type' => 'datepicker'])
                     <div class="text-center">
                         <button type="submit" class="button" data-type="primary">{{ __('core-cms::admin.save') }}</button>
                     </div>

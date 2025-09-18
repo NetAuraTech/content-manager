@@ -25,7 +25,6 @@
             $contactClasses[] = 'container';
         }
     @endphp
-    @include('core-cms::shared.partials.flash', ['floating' => true, 'duration' => 10])
     <div class="{{ join(" ", $contactClasses) }}">
         @if(key_exists('title', $block)  && $block['title'] !== "")
             @include('content-manager::shared.blocks.components.title', ['block' => $block])
@@ -53,10 +52,10 @@
                                 @endphp
                                 @switch($field['type'])
                                     @case('text')
-                                            @include('core-cms::shared.input', ['label' => $field['label'], 'name' => $id, 'type' => 'text', 'help' => $field['help']])
+                                            @include('core-cms::shared.form-field', ['label' => $field['label'], 'name' => $id, 'type' => 'text', 'help' => $field['help']])
                                         @break
                                     @case('textarea')
-                                            @include('core-cms::shared.input', ['label' => $field['label'], 'name' => $id, 'type' => 'textarea', 'help' => $field['help']])
+                                            @include('core-cms::shared.form-field', ['label' => $field['label'], 'name' => $id, 'type' => 'textarea', 'help' => $field['help']])
                                         @break
                                     @case('select')
                                         @php
@@ -65,10 +64,10 @@
                                                 $selectOptions = collect($field['options']);
                                             }
                                         @endphp
-                                            @include('core-cms::shared.select', ['label' => $field['label'], 'name' => $id, 'selectOptions' => $selectOptions->map(fn($s) => (object)['key' => Str::slug($s['option']),'label' => $s['option']])])
+                                            @include('core-cms::shared.form-field', ['type' => 'select', 'label' => $field['label'], 'name' => $id, 'selectOptions' => $selectOptions->map(fn($s) => (object)['key' => Str::slug($s['option']),'label' => $s['option']])])
                                         @break
                                     @case('checkbox')
-                                            @include('core-cms::shared.switch', ['label' => $field['label'], 'name' => $id, 'help' => $field['help']])
+                                            @include('core-cms::shared.form-field', ['type' => 'checkbox', 'label' => $field['label'], 'name' => $id, 'help' => $field['help']])
                                         @break
                                 @endswitch
                             @endforeach
