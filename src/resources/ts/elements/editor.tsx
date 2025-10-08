@@ -24,6 +24,7 @@ import {HtmlText, HtmlTextFieldArgs} from "../components/editor/components/field
 import {Media, MediaFieldArgs} from "../components/editor/components/fields/media";
 import {DatePicker} from "../components/editor/components/fields/datePicker";
 import {Checkbox} from "../components/editor/components/fields/checkbox";
+import {Dropdown} from "../components/editor/components/fields/layouts/dropdown";
 
 const components: EditorComponentDefinitions = {}
 const templates: EditorComponentTemplate[] = []
@@ -159,7 +160,7 @@ export class Editor {
     }
 
     titleField(name: string, label: string) {
-        return this.layouts.Row([
+        return this.layouts.Dropdown([
             this.fields.Text(name, {
                 label: label,
                 multiline: false,
@@ -246,12 +247,14 @@ export class Editor {
                 colors: Object.values(this.colors()),
                 default: 'transparent'
             } as ColorFieldArgs).when(`${name}-border-style`),
-        ]);
+        ], {
+            collapsed: label
+        });
     }
 
     mediaField(name: string) {
         return [
-            this.layouts.Row([
+            this.layouts.Dropdown([
                 this.fields.Media(name, {
                     label: translate('content-manager.admin.editor.sidebar.tabs.media.value'),
                     canAnimate: true
@@ -261,8 +264,6 @@ export class Editor {
                     multiline: false,
                     canAnimate: false
                 } as TextFieldArgs).when(name),
-            ] as Array<FieldDefinition>),
-            this.layouts.Row([
                 this.fields.Number(`${name}-height`, {
                     label: translate('content-manager.admin.editor.sidebar.tabs.media.width.value'),
                     help: translate('content-manager.admin.editor.sidebar.tabs.media.width.help')
@@ -273,36 +274,44 @@ export class Editor {
                     min: 0,
                     max: 1,
                     step: 0.01
-                } as NumberFieldArgs),
-            ] as Array<FieldDefinition>).when(name)
+                } as NumberFieldArgs).when(name),
+            ] as Array<FieldDefinition>, {
+                collapsed: translate('content-manager.admin.editor.sidebar.tabs.media.value')
+            }),
         ]
     }
 
     animationField(key: string, label: string) {
-        return this.layouts.Row([
+        return this.layouts.Dropdown([
             this.fields.Select(`${key}_animation`, {
-                label: label,
+                label: translate('content-manager.admin.editor.sidebar.tabs.value'),
                 options: [
                     {
                         value: '',
-                        label: ''
+                        label: 'Aucune animation'
                     },
-                    {
-                        value: 'fade',
-                        label: 'Fade'
-                    },
+                    // FADE BLUR
                     {
                         value: 'fade-blur',
-                        label: 'Fade blur'
+                        label: 'Fade Blur'
                     },
                     {
                         value: 'fade-blur-left',
-                        label: 'Fade blur left'
+                        label: 'Fade Blur Left'
                     },
                     {
                         value: 'fade-blur-right',
-                        label: 'Fade blur right'
+                        label: 'Fade Blur Right'
                     },
+                    {
+                        value: 'fade-blur-top',
+                        label: 'Fade Blur Top'
+                    },
+                    {
+                        value: 'fade-blur-bottom',
+                        label: 'Fade Blur Bottom'
+                    },
+                    // SLIDE
                     {
                         value: 'slide-left',
                         label: 'Slide Left'
@@ -311,6 +320,113 @@ export class Editor {
                         value: 'slide-right',
                         label: 'Slide Right'
                     },
+                    {
+                        value: 'slide-top',
+                        label: 'Slide Top'
+                    },
+                    {
+                        value: 'slide-bottom',
+                        label: 'Slide Bottom'
+                    },
+                    // ZOOM
+                    {
+                        value: 'zoom-in',
+                        label: 'Zoom In'
+                    },
+                    {
+                        value: 'zoom-out',
+                        label: 'Zoom Out'
+                    },
+                    // ROTATE
+                    {
+                        value: 'rotate-left',
+                        label: 'Rotate Left'
+                    },
+                    {
+                        value: 'rotate-right',
+                        label: 'Rotate Right'
+                    },
+                    // FLIP
+                    {
+                        value: 'flip-x',
+                        label: 'Flip X'
+                    },
+                    {
+                        value: 'flip-y',
+                        label: 'Flip Y'
+                    },
+                    // SKEW
+                    {
+                        value: 'skew-left',
+                        label: 'Skew Left'
+                    },
+                    {
+                        value: 'skew-right',
+                        label: 'Skew Right'
+                    },
+                    {
+                        value: 'skew-top',
+                        label: 'Skew Top'
+                    },
+                    {
+                        value: 'skew-bottom',
+                        label: 'Skew Bottom'
+                    },
+                    // REVEAL
+                    {
+                        value: 'reveal-left',
+                        label: 'Reveal Left'
+                    },
+                    {
+                        value: 'reveal-right',
+                        label: 'Reveal Right'
+                    },
+                    {
+                        value: 'reveal-top',
+                        label: 'Reveal Top'
+                    },
+                    {
+                        value: 'reveal-bottom',
+                        label: 'Reveal Bottom'
+                    },
+                    {
+                        value: 'reveal-center',
+                        label: 'Reveal Center'
+                    },
+                    // BOUNCE
+                    {
+                        value: 'bounce-left',
+                        label: 'Bounce Left'
+                    },
+                    {
+                        value: 'bounce-right',
+                        label: 'Bounce Right'
+                    },
+                    {
+                        value: 'bounce-top',
+                        label: 'Bounce Top'
+                    },
+                    {
+                        value: 'bounce-bottom',
+                        label: 'Bounce Bottom'
+                    },
+                    // SCALE
+                    {
+                        value: 'scale-top-left',
+                        label: 'Scale Top Left'
+                    },
+                    {
+                        value: 'scale-top-right',
+                        label: 'Scale Top Right'
+                    },
+                    {
+                        value: 'scale-bottom-left',
+                        label: 'Scale Bottom Left'
+                    },
+                    {
+                        value: 'scale-bottom-right',
+                        label: 'Scale Bottom Right'
+                    }
                 ]
             } as SelectFieldArgs),
             this.fields.Number(`${key}_delay`, {
@@ -324,10 +440,12 @@ export class Editor {
                 multiline: false,
                 canAnimate: false
             } as TextFieldArgs).when(`${key}_animation`, ''),
-        ]);
+        ], {
+            label: label
+        });
     }
 
-    baseTabs(fields: Array<FieldDefinition<any, any>>) {
+    baseTabs(fields: Array<FieldDefinition<any, any>>, tabs = {content: true, animation: true, background: true, appearance: true}) {
         const animationFields = [this.animationField('general', translate('content-manager.admin.editor.sidebar.tabs.animation.general'))];
 
 
@@ -357,118 +475,118 @@ export class Editor {
             }
         });
 
-        return this.layouts.Tabs(
-            {
+        const availableTabs = {
+            content: {
                 label: translate('content-manager.admin.editor.sidebar.tabs.content'),
                 fields: fields,
             } as TabDefinition,
-            {
+            animation: {
                 label: translate('content-manager.admin.editor.sidebar.tabs.animation.value'),
                 fields: animationFields,
             } as TabDefinition,
-            {
+            background: {
                 label: translate('content-manager.admin.editor.sidebar.tabs.background.value'),
                 fields: [
-                    this.layouts.Row([
-                        this.fields.Color('background-color', {
-                            label: translate('content-manager.admin.editor.sidebar.tabs.background.color'),
-                            colors: Object.values(this.colors()),
-                            default: 'transparent'
-                        } as ColorFieldArgs),
-                        this.fields.Media('background-image', {
-                            label: translate('content-manager.admin.editor.sidebar.tabs.background.image.value')
-                        } as MediaFieldArgs),
-                        this.fields.Number('background-image-opacity', {
-                            label: translate('content-manager.admin.editor.sidebar.tabs.background.image.opacity'),
-                            default: "1",
-                            min: 0,
-                            max: 1,
-                            step: 0.01
-                        } as NumberFieldArgs),
-                    ] as Array<FieldDefinition<any, any>>),
-                    this.layouts.Row([
-                        this.fields.Select('background-image-size', {
-                            label: translate('content-manager.admin.editor.sidebar.tabs.background.image.size.value'),
-                            options: [
-                                {
-                                    label: translate('content-manager.admin.editor.sidebar.tabs.background.image.size.auto'),
-                                    value: 'auto'
-                                },
-                                {
-                                    label: translate('content-manager.admin.editor.sidebar.tabs.background.image.size.cover'),
-                                    value: 'cover'
-                                },
-                                {
-                                    label: translate('content-manager.admin.editor.sidebar.tabs.background.image.size.contain'),
-                                    value: 'contain'
-                                }
-                            ],
-                            default: 'auto'
-                        } as SelectFieldArgs),
-                        this.fields.Select('background-image-repeat', {
-                            label: translate('content-manager.admin.editor.sidebar.tabs.background.image.repeat.value'),
-                            options: [
-                                {
-                                    label: translate('content-manager.admin.editor.sidebar.tabs.background.image.repeat.no'),
-                                    value: 'no-repeat'
-                                },
-                                {
-                                    label: 'X',
-                                    value: 'repeat-x'
-                                },
-                                {
-                                    label: 'Y',
-                                    value: 'repeat-y'
-                                },
-                                {
-                                    label: 'X & Y',
-                                    value: 'repeat'
-                                }
-                            ],
-                            default: 'auto'
-                        } as SelectFieldArgs),
-                    ] as Array<FieldDefinition<any, any>>).when('background-image'),
-                    this.layouts.Row([
-                        this.fields.Select('background-image-position-x', {
-                            label: translate('content-manager.admin.editor.sidebar.tabs.background.image.position.x'),
-                            options: [
-                                {
-                                    label: translate('content-manager.admin.editor.sidebar.tabs.background.image.position.left'),
-                                    value: 'left'
-                                },
-                                {
-                                    label: translate('content-manager.admin.editor.sidebar.tabs.background.image.position.center'),
-                                    value: 'center'
-                                },
-                                {
-                                    label: translate('content-manager.admin.editor.sidebar.tabs.background.image.position.right'),
-                                    value: 'right'
-                                },
-                            ],
-                            default: 'center'
-                        } as SelectFieldArgs),
-                        this.fields.Select('background-image-position-y', {
-                            label: translate('content-manager.admin.editor.sidebar.tabs.background.image.position.y'),
-                            options: [
-                                {
-                                    label: translate('content-manager.admin.editor.sidebar.tabs.background.image.position.top'),
-                                    value: 'top'
-                                },
-                                {
-                                    label: translate('content-manager.admin.editor.sidebar.tabs.background.image.position.center'),
-                                    value: 'center'
-                                },
-                                {
-                                    label: translate('content-manager.admin.editor.sidebar.tabs.background.image.position.bottom'),
-                                    value: 'bottom'
-                                },
-                            ],
-                            default: 'center'
-                        } as SelectFieldArgs),
-                    ] as Array<FieldDefinition<any, any>>).when('background-image'),
-                ],
+                  this.layouts.Row([
+                      this.fields.Color('background-color', {
+                          label: translate('content-manager.admin.editor.sidebar.tabs.background.color'),
+                          colors: Object.values(this.colors()),
+                          default: 'transparent'
+                      } as ColorFieldArgs),
+                      this.fields.Media('background-image', {
+                          label: translate('content-manager.admin.editor.sidebar.tabs.background.image.value')
+                      } as MediaFieldArgs),
+                      this.fields.Number('background-image-opacity', {
+                          label: translate('content-manager.admin.editor.sidebar.tabs.background.image.opacity'),
+                          default: "1",
+                          min: 0,
+                          max: 1,
+                          step: 0.01
+                      } as NumberFieldArgs),
+                  ] as Array<FieldDefinition<any, any>>),
+                  this.layouts.Row([
+                      this.fields.Select('background-image-size', {
+                          label: translate('content-manager.admin.editor.sidebar.tabs.background.image.size.value'),
+                          options: [
+                              {
+                                  label: translate('content-manager.admin.editor.sidebar.tabs.background.image.size.auto'),
+                                  value: 'auto'
+                              },
+                              {
+                                  label: translate('content-manager.admin.editor.sidebar.tabs.background.image.size.cover'),
+                                  value: 'cover'
+                              },
+                              {
+                                  label: translate('content-manager.admin.editor.sidebar.tabs.background.image.size.contain'),
+                                  value: 'contain'
+                              }
+                          ],
+                          default: 'auto'
+                      } as SelectFieldArgs),
+                      this.fields.Select('background-image-repeat', {
+                          label: translate('content-manager.admin.editor.sidebar.tabs.background.image.repeat.value'),
+                          options: [
+                              {
+                                  label: translate('content-manager.admin.editor.sidebar.tabs.background.image.repeat.no'),
+                                  value: 'no-repeat'
+                              },
+                              {
+                                  label: 'X',
+                                  value: 'repeat-x'
+                              },
+                              {
+                                  label: 'Y',
+                                  value: 'repeat-y'
+                              },
+                              {
+                                  label: 'X & Y',
+                                  value: 'repeat'
+                              }
+                          ],
+                          default: 'auto'
+                      } as SelectFieldArgs),
+                  ] as Array<FieldDefinition<any, any>>).when('background-image'),
+                  this.layouts.Row([
+                      this.fields.Select('background-image-position-x', {
+                          label: translate('content-manager.admin.editor.sidebar.tabs.background.image.position.x'),
+                          options: [
+                              {
+                                  label: translate('content-manager.admin.editor.sidebar.tabs.background.image.position.left'),
+                                  value: 'left'
+                              },
+                              {
+                                  label: translate('content-manager.admin.editor.sidebar.tabs.background.image.position.center'),
+                                  value: 'center'
+                              },
+                              {
+                                  label: translate('content-manager.admin.editor.sidebar.tabs.background.image.position.right'),
+                                  value: 'right'
+                              },
+                          ],
+                          default: 'center'
+                      } as SelectFieldArgs),
+                      this.fields.Select('background-image-position-y', {
+                          label: translate('content-manager.admin.editor.sidebar.tabs.background.image.position.y'),
+                          options: [
+                              {
+                                  label: translate('content-manager.admin.editor.sidebar.tabs.background.image.position.top'),
+                                  value: 'top'
+                              },
+                              {
+                                  label: translate('content-manager.admin.editor.sidebar.tabs.background.image.position.center'),
+                                  value: 'center'
+                              },
+                              {
+                                  label: translate('content-manager.admin.editor.sidebar.tabs.background.image.position.bottom'),
+                                  value: 'bottom'
+                              },
+                          ],
+                          default: 'center'
+                      } as SelectFieldArgs),
+                  ] as Array<FieldDefinition<any, any>>).when('background-image'),
+              ],
             } as TabDefinition,
-            {
+            appearance: {
                 label: translate('content-manager.admin.editor.sidebar.tabs.appearance'),
                 fields: [
                     this.layouts.Row([
@@ -532,7 +650,13 @@ export class Editor {
                     })
                 ],
             } as TabDefinition,
-        )
+        };
+
+        const activeTabs = Object.entries(tabs)
+            .filter(([key, isActive]) => isActive)
+            .map(([key]) => availableTabs[key]);
+
+        return this.layouts.Tabs(...activeTabs);
     }
 
     links = () => {
@@ -932,7 +1056,8 @@ export class Editor {
 
     layouts = {
         Tabs,
-        Row
+        Row,
+        Dropdown
     }
 
     fields = {
