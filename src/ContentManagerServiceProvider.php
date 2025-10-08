@@ -2,6 +2,7 @@
 
 namespace Netauratech\ContentManager;
 
+use Database\Seeders\ContentTableSeeder;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Event;
 use Netauratech\ContentManager\Models\Content;
@@ -34,6 +35,12 @@ class ContentManagerServiceProvider extends AbstractCmsServiceProvider
         return $config;
     }
 
+    protected function getSeeders(): array
+    {
+        return [
+            ContentTableSeeder::class,
+        ];
+    }
     public function register(): void
     {
         parent::register();
