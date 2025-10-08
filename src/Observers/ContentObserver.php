@@ -42,114 +42,178 @@ class ContentObserver
         $hash = substr(md5(json_encode($block)), 0, 8);
         $baseClass = ".block__{$hash}";
 
-        $rules = "";
+        $groups = [];
 
-        // → Background image
-        if (!empty($block['background-image'])) {
-            $rules .= "--background-image:url(".image_url($block['background-image']).");";
+        foreach ($block as $key => $value) {
+            if (is_array($value) || is_null($value)) {
+                continue;
+            }
 
-            foreach ([
-                         'background-image-size',
-                         'background-image-opacity',
-                         'background-image-repeat',
-                         'background-image-position-x',
-                         'background-image-position-y'
-                     ] as $key) {
-                if (!empty($block[$key])) {
-                    $rules .= "--$key:{$block[$key]};";
+            if (str_contains($key, '_animation')) {
+                continue;
+            }
+
+            $validSuffixes = [
+                '-color',
+                '-border-style',
+                '-border-line',
+                '-border-color',
+                '-opacity',
+                '-transition-name',
+                '_delay',
+                // Background
+                '-image',
+                '-image-opacity',
+                '-image-size',
+                '-image-repeat',
+                '-image-position-x',
+                '-image-position-y',
+                // Layout/Root
+                'min-item-size',
+                'gap',
+            ];
+
+            $hasValidSuffix = false;
+            foreach ($validSuffixes as $suffix) {
+                if (str_ends_with($key, $suffix) || $key === $suffix) {
+                    $hasValidSuffix = true;
+                    break;
+                }
+            }
+
+            if (!$hasValidSuffix) {
+                continue;
+            }
+
+            $prefix = 'root';
+            foreach ($validSuffixes as $suffix) {
+                if (str_ends_with($key, $suffix)) {
+                    $prefix = substr($key, 0, -strlen($suffix));
+                    break;
+                }
+                if ($key === $suffix) {
+                    $prefix = 'root';
+                    break;
+                }
+            }
+
+            $groups[$prefix][$key] = $value;
+        }
+
+        // --- Root block treatment ---
+        $rootRules = "";
+
+        if (isset($groups['background'])) {
+            foreach ($groups['background'] as $key => $value) {
+                if ($value === '' || $value === 'transparent') {
+                    continue;
+                }
+
+                if ($key === 'background-image') {
+                    $rootRules .= "--background-image:url(".image_url($value).");";
+                } elseif (str_starts_with($key, 'background-image-')) {
+                    $cssVar = str_replace('background-image-', 'background-image-', $key);
+                    $rootRules .= "--{$cssVar}:{$value};";
+                } elseif ($key === 'background-color') {
+                    $rootRules .= "--background-color:{$value};";
                 }
             }
         }
 
-        if (!empty($block['background-color']) && $block['background-color'] !== 'transparent') {
-            $rules .= "--background-color:{$block['background-color']};";
-        }
-
-        if (trim($rules) !== "") {
-            $css .= "{$baseClass}{{$rules}}";
-        }
-
-        // --- Title block ---
-        if (!empty($block['title'])) {
-            $titleRules = "";
-            $titleClass = "{$baseClass}-title";
-
-            if (!empty($block['title-color']) && $block['title-color'] !== 'transparent') {
-                $titleRules .= "color:{$block['title-color']};";
-            }
-
-            if (!empty($block['title-border-style'])) {
-                $titleRules .= "text-decoration-style:{$block['title-border-style']};";
-                $titleRules .= "text-decoration-thickness:3px;";
-
-                if (!empty($block['title-border-line'])) {
-                    $titleRules .= "text-decoration-line:{$block['title-border-line']};";
+        if (isset($groups['general'])) {
+            foreach ($groups['general'] as $key => $value) {
+                if ($value === '' || $value === 'transparent') {
+                    continue;
                 }
 
-                if (!empty($block['title-border-color']) && $block['title-border-color'] !== 'transparent') {
-                    $titleRules .= "text-decoration-color:{$block['title-border-color']};";
+                if (str_ends_with($key, '-transition-name')) {
+                    $rootRules .= "view-transition-name:{$value};";
+                }
+            }
+        }
+
+        if (trim($rootRules) !== "") {
+            $css .= "{$baseClass}{{$rootRules}}";
+        }
+
+        foreach ($groups as $prefix => $keys) {
+            if ($prefix === 'background' || $prefix === 'general' || $prefix === 'root') {
+                continue;
+            }
+
+            $rules = "";
+
+            $hasBorderStyle = false;
+            foreach ($keys as $key => $value) {
+                if (str_ends_with($key, '-border-style') && $value !== '') {
+                    $hasBorderStyle = true;
+                    break;
                 }
             }
 
-            if (!empty($block['title_animation']) && !empty($block['title_delay']) && $block['title_delay'] !== '0') {
-                $titleRules .= "--delay:{$block['title_delay']}s;";
+            foreach ($keys as $key => $value) {
+                if ($value === '' || $value === 'transparent') {
+                    // Exception for opacity
+                    if (!str_ends_with($key, '-opacity')) {
+                        continue;
+                    }
+                }
+
+                // color
+                if (str_ends_with($key, '-color')) {
+                    $rules .= "color:{$value};";
+                }
+                // border-style
+                elseif (str_ends_with($key, '-border-style')) {
+                    $rules .= "text-decoration-style:{$value};";
+                    $rules .= "text-decoration-thickness:3px;";
+                }
+                // border-line
+                elseif (str_ends_with($key, '-border-line') && $hasBorderStyle) {
+                    $rules .= "text-decoration-line:{$value};";
+                }
+                // border-color
+                elseif (str_ends_with($key, '-border-color') && $hasBorderStyle && $value !== 'transparent') {
+                    $rules .= "text-decoration-color:{$value};";
+                }
+                // opacity
+                elseif (str_ends_with($key, '-opacity')) {
+                    $rules .= "opacity:{$value};";
+                }
+                // transition-name
+                elseif (str_ends_with($key, '-transition-name')) {
+                    $rules .= "view-transition-name:{$value};";
+                }
             }
 
-            if (!empty($block['title-transition-name'])) {
-                $titleRules .= "view-transition-name:{$block['title-transition-name']};";
-            }
-
-            if (trim($titleRules) !== "") {
-                $css .= "{$titleClass}{{$titleRules}}";
-            }
-        }
-
-        // --- Content block ---
-        if (!empty($block['content'])) {
-            $contentRules = "";
-            $contentClass = "{$baseClass}-content";
-
-            if (!empty($block['content_animation']) && !empty($block['content_delay']) && $block['content_delay'] !== '0') {
-                $contentRules .= "--delay:{$block['content_delay']}s;";
-            }
-
-            if (!empty($block['content-transition-name'])) {
-                $contentRules .= "view-transition-name:{$block['content-transition-name']};";
-            }
-
-            if (trim($contentRules) !== "") {
-                $css .= "{$contentClass}{{$contentRules}}";
-            }
-        }
-
-        // --- Img block ---
-        if (!empty($block['media'])) {
-            $mediaRules = "";
-            $mediaClass = "{$baseClass}-media";
-
-            if (isset($block['media-opacity'])) {
-                $mediaRules .= "opacity:{$block['media-opacity']};";
-            }
-
-            if (trim($mediaRules) !== "") {
-                $css .= "{$mediaClass}{{$mediaRules}}";
+            if (trim($rules) !== "") {
+                $elementClass = "{$baseClass}-{$prefix}";
+                $css .= "{$elementClass}{{$rules}}";
             }
         }
 
         // --- Layout block ---
-        $layoutRules = "";
-        $layoutClass = "{$baseClass}-layout";
+        if (isset($groups['root'])) {
+            $layoutRules = "";
 
-        if (!empty($block['min-item-size'])) {
-            $layoutRules .= "--min-item-size:{$block['min-item-size']}px;";
-        }
+            foreach ($groups['root'] as $key => $value) {
+                if ($value === '') {
+                    continue;
+                }
 
-        if (!empty($block['gap'])) {
-            $layoutRules .= "--grid-gap:{$block['gap']}rem;";
-        }
+                if ($key === 'min-item-size') {
+                    $layoutRules .= "--min-item-size:{$value}px;";
+                } elseif ($key === 'gap') {
+                    $layoutRules .= "--grid-gap:{$value}rem;";
+                } elseif (str_starts_with($key, 'padding-') || str_starts_with($key, 'border-')) {
+                    // Other root properties if necessary
+                }
+            }
 
-        if (trim($layoutRules) !== "") {
-            $css .= "{$layoutClass}{{$layoutRules}}";
+            if (trim($layoutRules) !== "") {
+                $layoutClass = "{$baseClass}-layout";
+                $css .= "{$layoutClass}{{$layoutRules}}";
+            }
         }
 
         if ($css == "") {
