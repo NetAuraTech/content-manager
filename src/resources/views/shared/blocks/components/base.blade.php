@@ -46,12 +46,20 @@
 >
     @php
         $animations = [];
+        $styles = [];
 
         if(key_exists('general_animation', $block) && $block['general_animation'] !== "") {
             $animations[] = $block['general_animation'];
+
+            if(key_exists("general_delay", $block) && $block["general_delay"] !== "0") {
+                $styles[] = '--delay: ' . $block["general_delay"] . 's;';
+            }
         }
     @endphp
-    <div class="container {{ join(" ", $animations) }}">
+    <div
+        class="container {{ join(" ", $animations) }}"
+        @if(count($styles) > 0)style="{{ implode(";", $styles) }}"@endif
+    >
         @yield('content')
     </div>
 </section>

@@ -55,6 +55,17 @@ $id = null;
 if(key_exists('id', $block) && $block['id'] !== "") {
     $id = $block['id'];
 }
+
+$layoutStyles = [];
+
+if(key_exists("general_animation", $block) && $block["general_animation"] !== '') {
+    $classes[] = $block["general_animation"];
+
+    if(key_exists("general_delay", $block) && $block["general_delay"] !== "0") {
+        $layoutStyles[] = '--delay: ' . $block["general_delay"] . 's;';
+    }
+}
+
 ?>
 
 @if($element === 'section')
@@ -85,6 +96,7 @@ if(key_exists('id', $block) && $block['id'] !== "") {
         <div
                 class="{{ join(" ", $classes) }}"
                 @if(key_exists('id', $block))id="{{ $block['id'] }}" @endif
+                @if(count($layoutStyles) > 0)style="{{ implode(";", $layoutStyles) }}"@endif
         >
             @yield('content')
         </div>

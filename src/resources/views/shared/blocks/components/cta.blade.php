@@ -1,4 +1,5 @@
 @php
+    $blocKey = $blocKey ?? 'link';
     $block = $block ?? [];
 
     if($block['type'] == 'internal' && $block['url'] !== "") {
@@ -10,17 +11,23 @@
         $label = $block['label'];
     }
 
-    $blockClasses = ['button'];
+    $ctaClasses = ['button'];
+    $ctaStyles = [];
 
-    if(key_exists('link_animation', $block)) {
-        $blockClasses[] = $block['link_animation'];
+    if(key_exists("{$blocKey}_animation", $block) && $block["{$blocKey}_animation"] !== '') {
+        $ctaClasses[] = $block["{$blocKey}_animation"];
+
+        if(key_exists("{$blocKey}_delay", $block) && $block["{$blocKey}_delay"] !== "0") {
+            $ctaStyles[] = '--delay: ' . $block["{$blocKey}_delay"] . 's;';
+        }
     }
 @endphp
 
 <a
-    class="{{ join(" ", $blockClasses) }}"
+    class="{{ join(" ", $ctaClasses) }}"
     data-type="primary" href="{{ $path }}"
     title="{{ $label }}"
+    @if(count($ctaStyles) > 0)style="{{ implode(";", $ctaStyles) }}"@endif
 >
     {{ $label }}
 </a>
