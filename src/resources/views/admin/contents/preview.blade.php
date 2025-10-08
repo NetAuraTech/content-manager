@@ -5,6 +5,19 @@
     <style>
         {{ $css }}
     </style>
+    @php
+        $contents = [$options['header'], $options['footer']];
+    @endphp
+    @foreach($contents as $item)
+        @php
+            $cacheBuster = substr(md5(json_encode($item->updated_at)), 0, 8);
+            $cssPath = 'css/' . $item->slug . '.css';
+        @endphp
+        <link rel="preload" href="{{ route('assets.show', ['path' => $cssPath]) }}?v={{ $cacheBuster }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <noscript>
+            <link rel="stylesheet" href="{{ route('assets.show', ['path' => $cssPath]) }}?v={{ $cacheBuster }}">
+        </noscript>
+    @endforeach
 @overwrite
 
 @section('header')
