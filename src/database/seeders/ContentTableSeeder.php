@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Netauratech\ContentManager\Models\Content;
+use Netauratech\CoreCms\Models\Option;
 use Netauratech\CoreCms\Models\User;
 
 class ContentTableSeeder extends Seeder
@@ -75,7 +76,7 @@ class ContentTableSeeder extends Seeder
             "border-bottom-right-radius" => "0",
         ];
 
-        Content::firstOrCreate(array_merge($common, [
+        $header = Content::firstOrCreate(array_merge($common, [
             'title' => 'Header',
             'slug' => 'header',
             'type' => 'template',
@@ -93,7 +94,7 @@ class ContentTableSeeder extends Seeder
             ]),
         ]));
 
-        Content::firstOrCreate(array_merge($common, [
+        $footer = Content::firstOrCreate(array_merge($common, [
             'title' => 'Footer',
             'slug' => 'footer',
             'type' => 'template',
@@ -124,7 +125,7 @@ class ContentTableSeeder extends Seeder
             ]),
         ]));
 
-        Content::firstOrCreate(array_merge($common, [
+        $home = Content::firstOrCreate(array_merge($common, [
             'title' => 'Accueil',
             'slug' => 'accueil',
             'type' => 'page',
@@ -221,7 +222,7 @@ class ContentTableSeeder extends Seeder
             ]),
         ]));
 
-        Content::firstOrCreate(array_merge($common, [
+        $privacy_policy = Content::firstOrCreate(array_merge($common, [
             'title' => 'Politique de confidentialité',
             'slug' => 'politique-de-confidentialite',
             'type' => 'page',
@@ -305,5 +306,41 @@ class ContentTableSeeder extends Seeder
                 ]),
             ]),
         ]));
+
+        Option::firstOrCreate(
+            ['key' => 'homepage'],
+            [
+                'value' => $home->id,
+                'category' => 'content_settings',
+                'type' => 'content',
+            ]
+        );
+
+        Option::firstOrCreate(
+            ['key' => 'header'],
+            [
+                'value' => $header->id,
+                'category' => 'content_settings',
+                'type' => 'template',
+            ]
+        );
+
+        Option::firstOrCreate(
+            ['key' => 'footer'],
+            [
+                'value' => $footer->id,
+                'category' => 'content_settings',
+                'type' => 'template',
+            ]
+        );
+
+        Option::firstOrCreate(
+            ['key' => 'privacy-policy'],
+            [
+                'value' => $privacy_policy->id,
+                'category' => 'legals',
+                'type' => 'content',
+            ]
+        );
     }
 }
