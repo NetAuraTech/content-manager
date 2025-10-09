@@ -13,9 +13,14 @@ if ($element === 'header') {
     $classes[] = 'block';
     $classes[] = 'block__' . substr(md5(json_encode($block)), 0, 8);
     $wrapperClasses = [''];
+    $layoutStyles = [];
 
     if (key_exists('general_animation', $block) && $block['general_animation'] !== "") {
         $wrapperClasses[] = $block['general_animation'];
+
+        if(key_exists("general_delay", $block) && $block["general_delay"] !== "0") {
+            $layoutStyles[] = '--delay: ' . $block["general_delay"] . 's;';
+        }
     }
 
     if (key_exists('background-image', $block) && $block['background-image'] != "") {
@@ -55,17 +60,6 @@ $id = null;
 if(key_exists('id', $block) && $block['id'] !== "") {
     $id = $block['id'];
 }
-
-$layoutStyles = [];
-
-if(key_exists("general_animation", $block) && $block["general_animation"] !== '') {
-    $classes[] = $block["general_animation"];
-
-    if(key_exists("general_delay", $block) && $block["general_delay"] !== "0") {
-        $layoutStyles[] = '--delay: ' . $block["general_delay"] . 's;';
-    }
-}
-
 ?>
 
 @if($element === 'section')
