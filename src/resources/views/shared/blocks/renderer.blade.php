@@ -6,7 +6,7 @@
     $css = $css ?? null;
 
     $theme = $options['theme'] ?? 'default';
-    $viewName = $block[$key] ?? 'missing';
+    $viewName = $block[$key] ?? $view ?? 'missing';
 
     $sharedPath = "content-manager::shared.blocks.$viewName";
     $themePath = "theme::$viewName";
