@@ -13,29 +13,31 @@ use netauratech\CoreCms\Contracts\ContentProviderInterface;
 class ContentProvider implements ContentProviderInterface
 {
     /**
-     * Retrieves all articles (Content of type ‘article’).
+     * Retrieves all contents.
      *
-     * @param int $perPage
+     * @param string $type
+     * @param ?int $perPage
      * @return LengthAwarePaginator
      */
-    public function getArticles(int $perPage = 10): LengthAwarePaginator
+    public function getContents(string $type, ?int $perPage = null): LengthAwarePaginator
     {
-        return Content::where('type', 'article')
+        return Content::where('type', $type)
             ->where('status', 'published')
             ->orderBy('published_at', 'desc')
             ->paginate($perPage);
     }
 
     /**
-     * Retrieves articles from category.
+     * Retrieves contents from category.
      *
+     * @param string $type
      * @param string $slug
-     * @param int $perPage
+     * @param ?int $perPage
      * @return LengthAwarePaginator
      */
-    public function getArticlesByCategory(string $slug, int $perPage = 10): LengthAwarePaginator
+    public function getContentsByCategory(string $type, string $slug, ?int $perPage = null): LengthAwarePaginator
     {
-        return Content::where('type', 'article')
+        return Content::where('type', $type)
             ->where('status', 'published')
             ->whereHas('categories', function ($query) use ($slug) {
                 $query->where('categories.slug', $slug);
@@ -47,49 +49,22 @@ class ContentProvider implements ContentProviderInterface
     /**
      * Returns categories with the number of articles
      *
+     * @param string $type
      * @return Collection
      */
-    public function countCategories(): Collection
+    public function countCategories(string $type): Collection
     {
         return DB::table('categories')
             ->leftJoin('content_category', 'categories.id', '=', 'content_category.category_id')
-            ->leftJoin('contents', function ($join) {
+            ->leftJoin('contents', function ($join) use ($type) {
                 $join->on('content_category.content_id', '=', 'contents.id')
                     ->where('contents.status', 'published')
-                    ->where('contents.type', 'article');
+                    ->where('contents.type', $type);
             })
             ->select(DB::raw('categories.*, COUNT(DISTINCT contents.id) as count'))
             ->groupBy('categories.id', 'categories.name', 'categories.slug', 'categories.created_at', 'categories.updated_at')
             ->orderBy('name')
             ->get();
-    }
-
-    /**
-     * Retrieves all pages (Content type ‘page’).
-     *
-     * @param int $perPage
-     * @return LengthAwarePaginator
-     */
-    public function getPages(int $perPage = 10): LengthAwarePaginator
-    {
-        return Content::where('type', 'page')
-            ->where('status', 'published')
-            ->orderBy('title', 'asc')
-            ->paginate($perPage);
-    }
-
-    /**
-     * Retrieves all templates (Content type ‘template’).
-     *
-     * @param int $perPage
-     * @return LengthAwarePaginator
-     */
-    public function getTemplates(int $perPage = 10): LengthAwarePaginator
-    {
-        return Content::where('type', 'template')
-            ->where('status', 'published')
-            ->orderBy('title', 'asc')
-            ->paginate($perPage);
     }
 
     /**
@@ -114,28 +89,6 @@ class ContentProvider implements ContentProviderInterface
         return Content::where('slug', $slug)
             ->where('status', 'published')
             ->first();
-    }
-
-    /**
-     * Retrieves the header content (Content type ‘header’).
-     *
-     * @return object|null The header content model or null if not found.
-     */
-    public function getHeaderContent(): ?object
-    {
-        // TODO
-        return null;
-    }
-
-    /**
-     * Retrieves the footer content (Content of type ‘footer’).
-     *
-     * @return object|null The footer content model or null if not found.
-     */
-    public function getFooterContent(): ?object
-    {
-        // TODO
-        return null;
     }
 
     /**

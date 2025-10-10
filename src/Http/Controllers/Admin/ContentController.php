@@ -59,14 +59,17 @@ class ContentController extends AdminController
         $content->status = 'draft';
         $content->published_at = new Carbon();
 
-        $formFields = $this->formRegistry->getFormFields('content_form');
+        $formFields = [
+            ...$this->formRegistry->getFormFields("content_form_$type"),
+            ...$this->formRegistry->getFormFields("content_form")
+        ];
 
         return view('content-manager::admin.contents.form', [
             'content' => $content,
             'contentType' => $type,
             'formFields' => $formFields,
-            'articles' => $this->contentProvider->getArticles(999999999999999999),
-            'pages' => $this->contentProvider->getPages(999999999999999999),
+            'articles' => $this->contentProvider->getContents("article"),
+            'pages' => $this->contentProvider->getContents("page"),
         ]);
     }
 
@@ -90,14 +93,17 @@ class ContentController extends AdminController
      */
     public function edit(Content $content): View
     {
-        $formFields = $this->formRegistry->getFormFields('content_form');
+        $formFields = [
+            ...$this->formRegistry->getFormFields("content_form_$content->type"),
+            ...$this->formRegistry->getFormFields("content_form")
+        ];
 
         return view('content-manager::admin.contents.form', [
             'content' => $content,
             'contentType' => $content->type,
             'formFields' => $formFields,
-            'articles' => $this->contentProvider->getArticles(999999999999999999),
-            'pages' => $this->contentProvider->getPages(999999999999999999),
+            'articles' => $this->contentProvider->getContents("article"),
+            'pages' => $this->contentProvider->getContents("page"),
         ]);
     }
 

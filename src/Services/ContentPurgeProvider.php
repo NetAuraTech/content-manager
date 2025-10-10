@@ -42,9 +42,9 @@ class ContentPurgeProvider implements PurgeUrlProviderInterface
     {
         $urls = [];
 
-        $pages = $this->contentProvider->getPages();
-        foreach ($pages as $page) {
-            $urls[] = "/{$page->slug}";
+        $contents = $this->contentProvider->getContents("page");
+        foreach ($contents as $content) {
+            $urls[] = "/{$content->slug}";
         }
 
         $urls[] = "/";
