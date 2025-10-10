@@ -25,7 +25,9 @@ class ContentFormRequest extends FormRequest
      */
     public function rules(): array
     {
-        $contentId = $this->route('content') ? $this->route('content')->id : null;
+        $content = $this->route('content') ?? null;
+        $contentId = $content ? $content->id : null;
+        $contentType = $content ? $content->type : $this->route('type');
 
         $staticRules = [
             'title' => ['required', 'string', 'max:255'],
@@ -37,14 +39,18 @@ class ContentFormRequest extends FormRequest
             ],
             'description' => ['nullable', 'string'],
             'content' => ['nullable', 'string'],
-            'type' => ['required', 'string', Rule::in(['page', 'article', 'template'])],
+            'type' => ['required', 'string', Rule::in(['page', 'template', $contentType])],
             'status' => ['required', 'string', Rule::in(['draft', 'published', 'archived'])],
             'published_at' => ['nullable', 'date'],
         ];
 
         $dynamicRules = [];
         $formRegistry = app(FormRegistry::class);
-        $validationRules = $formRegistry->getValidationRules('content_form');
+
+        $validationRules = [
+            ...$formRegistry->getValidationRules("content_form_$contentType"),
+            ...$formRegistry->getValidationRules("content_form")
+        ];
 
         foreach ($validationRules as $key => $value) {
             $dynamicRules[$key] = $value;
