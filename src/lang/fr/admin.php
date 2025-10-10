@@ -257,4 +257,5 @@ return [
             ],
         ],
     ],
+    'taxonomy' => 'Taxonomies',
 ];

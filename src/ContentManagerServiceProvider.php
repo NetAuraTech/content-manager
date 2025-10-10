@@ -27,7 +27,6 @@ class ContentManagerServiceProvider extends AbstractCmsServiceProvider
     {
         $config = parent::getBootstrapConfig();
 
-        $config['routes']['api'] = false;
         $config['routes']['auth'] = false;
         $config['publishes']['config'] = false;
         $config['publishes']['assets'] = false;
@@ -82,6 +81,24 @@ class ContentManagerServiceProvider extends AbstractCmsServiceProvider
                     'params' => ['type' => 'template'],
                     'can'   => 'content-list'
                 ]
+            ]
+        ]);
+
+        $menuManager->registerMenuItem('taxonomies', [
+            'label' => __('content-manager::admin.taxonomy'),
+            'children' => [
+                [
+                    'label' => trans_choice('content-manager::admin.content.category.value', 0),
+                    'icon'  => 'category',
+                    'route' => 'admin.categories.index',
+                    'can'   => 'category-list'
+                ],
+                [
+                    'label' => trans_choice('content-manager::admin.content.tag.value', 0),
+                    'icon'  => 'tag',
+                    'route' => 'admin.tags.index',
+                    'can'   => 'tag-list'
+                ],
             ]
         ]);
     }
