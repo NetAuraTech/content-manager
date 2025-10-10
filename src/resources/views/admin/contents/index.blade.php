@@ -1,7 +1,16 @@
 @extends('core-cms::admin.base')
 
+@php
+    $contentType = $contentType ?? "";
+    $transKey = "$contentType-manager::admin.content.$contentType.value";
+
+    if (trans()->has("content-manager::admin.content.$contentType.value")) {
+        $transKey = "content-manager::admin.content.$contentType.value";
+    }
+@endphp
+
 @section('title')
-    {{ __('core-cms::admin.manage') }} {{ trans_choice('content-manager::admin.content.' . $contentType . '.value', 2) }}
+    {{ __('core-cms::admin.manage') }} {{ trans_choice($transKey, 2) }}
 @endsection
 
 @section('body')
@@ -19,10 +28,10 @@
                     }
                 @endphp
                 {!! icon($icon, 'small') !!}
-                {{ __('core-cms::admin.manage') }} {{ trans_choice('content-manager::admin.content.' . $contentType . '.value', 2) }}
+                {{ __('core-cms::admin.manage') }} {{ trans_choice($transKey, 2) }}
             </h2>
             <a class="button" href="{{ route('admin.contents.create', ['type' => $contentType]) }}" data-type="primary">
-                {{ __('core-cms::admin.add') }} {{ trans_choice('content-manager::admin.content.' . $contentType . '.value', 1) }}
+                {{ __('core-cms::admin.add') }} {{ trans_choice($transKey, 1) }}
             </a>
         </div>
         <div class="card">

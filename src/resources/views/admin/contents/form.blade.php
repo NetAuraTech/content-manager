@@ -1,10 +1,19 @@
 @extends('core-cms::admin.base')
 
+@php
+    $contentType = $contentType ?? "";
+    $transKey = "$contentType-manager::admin.content.$contentType.value";
+
+    if (trans()->has("content-manager::admin.content.$contentType.value")) {
+        $transKey = "content-manager::admin.content.$contentType.value";
+    }
+@endphp
+
 @section('title')
     @if($content->exists)
-        {{ __('core-cms::admin.edit') }} {{ trans_choice('content-manager::admin.content.' . $contentType . '.value', 1) }}
+        {{ __('core-cms::admin.edit') }} {{ trans_choice($transKey, 1) }}
     @else
-        {{ __('core-cms::admin.create') }} {{ trans_choice('content-manager::admin.content.' . $contentType . '.value', 1) }}
+        {{ __('core-cms::admin.create') }} {{ trans_choice($transKey, 1) }}
     @endif
 @endsection
 
@@ -35,9 +44,9 @@
         <h2 class="heading-2 flex-group align-items-center">
             {!! icon($contentType, 'small') !!}
             @if($content->exists)
-                {{ __('core-cms::admin.edit') }} {{ trans_choice('content-manager::admin.content.' . $contentType . '.value', 1) }}
+                {{ __('core-cms::admin.edit') }} {{ trans_choice($transKey, 1) }}
             @else
-                {{ __('core-cms::admin.create') }} {{ trans_choice('content-manager::admin.content.' . $contentType . '.value', 1) }}
+                {{ __('core-cms::admin.create') }} {{ trans_choice($transKey, 1) }}
             @endif
         </h2>
         <div class="card">
