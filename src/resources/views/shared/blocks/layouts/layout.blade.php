@@ -86,11 +86,11 @@ if(key_exists('id', $block) && $block['id'] !== "") {
 @else
     <div
             class="{{ join(" ", $wrapperClasses) }}"
+            @if(count($layoutStyles) > 0)style="{{ implode(";", $layoutStyles) }}"@endif
     >
         <div
                 class="{{ join(" ", $classes) }}"
                 @if(key_exists('id', $block))id="{{ $block['id'] }}" @endif
-                @if(count($layoutStyles) > 0)style="{{ implode(";", $layoutStyles) }}"@endif
         >
             @yield('content')
         </div>
