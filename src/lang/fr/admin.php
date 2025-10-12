@@ -226,6 +226,12 @@ return [
                     'value' => 'Étiquette',
                 ],
                 'link' => [
+                    'cta' => [
+                        'type' => 'Type de bouton',
+                        'primary' => 'Primaire',
+                        'accent' => 'Accent',
+                        'outline' => 'Outline'
+                    ],
                     'home' => 'Page d\'accueil',
                     'blog' => 'Articles',
                     'login' => 'Se connecter',

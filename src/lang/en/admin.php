@@ -226,6 +226,12 @@ return [
                     'value' => 'Label',
                 ],
                 'link' => [
+                    'cta' => [
+                      'type' => 'Button type',
+                      'primary' => 'Primary',
+                      'accent' => 'Accent',
+                      'outline' => 'Outline'
+                    ],
                     'home' => 'Homepage',
                     'blog' => 'Articles',
                     'login' => 'Log in',

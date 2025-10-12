@@ -659,8 +659,8 @@ export class Editor {
         return this.layouts.Tabs(...activeTabs);
     }
 
-    links = () => {
-        return [
+    links = (additionalFields: Array<FieldDefinition<any, any>> = []) => {
+        const fields = [
             this.fields.Text('label', {
                 label: translate('content-manager.admin.editor.sidebar.tabs.label.value'),
                 help: translate('content-manager.admin.editor.sidebar.tabs.label.help'),
@@ -726,8 +726,33 @@ export class Editor {
                     multiline: false,
                 })
                 .when('type', 'external'),
-            this.animationField('link', translate('content-manager.admin.editor.sidebar.tabs.animation.general'))
+            ...additionalFields
         ]
+
+        return this.baseTabs(fields, {content: true, animation: true, appearance: false, background: false})
+    }
+
+    ctas() {
+        const fields: Array<FieldDefinition<any, any>> = [
+            this.fields.Select('cta_type', {
+                label: translate('content-manager.admin.editor.sidebar.tabs.link.cta.type'),
+                options: [
+                    {
+                        value: 'primary',
+                        label: translate('content-manager.admin.editor.sidebar.tabs.link.cta.primary'),
+                    },
+                    {
+                        value: 'accent',
+                        label: translate('content-manager.admin.editor.sidebar.tabs.link.cta.accent'),
+                    },
+                    {
+                        value: 'outline',
+                        label: translate('content-manager.admin.editor.sidebar.tabs.link.cta.outline'),
+                    },
+                ],
+            } as SelectFieldArgs)
+        ];
+        return this.links(fields)
     }
 
     generateConditionalFields(components: EditorComponentDefinition[]) {
@@ -795,7 +820,9 @@ export class Editor {
                 } as HtmlTextFieldArgs),
                 this.fields.Repeater('ctas', {
                     addLabel: translate('core-cms.admin.add'),
-                    fields: [...this.links()],
+                    fields: [
+                        this.ctas()
+                    ],
                     label: translate('content-manager.admin.editor.sidebar.tabs.ctas')
                 } as RepeaterFieldArgs),
             ]
@@ -810,7 +837,9 @@ export class Editor {
                 this.titleField('title', translate('content-manager.admin.editor.sidebar.tabs.title.value')),
                 this.fields.Repeater('links', {
                     addLabel: translate('core-cms.admin.add'),
-                    fields: [...this.links()],
+                    fields: [
+                        this.links()
+                    ],
                     label: translate('content-manager.admin.editor.sidebar.tabs.links')
                 } as RepeaterFieldArgs),
             ]
