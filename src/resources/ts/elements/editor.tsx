@@ -159,6 +159,10 @@ export class Editor {
         components[name] = {label: definition.title, ...definition}
     }
 
+    registerTemplate (template: EditorComponentTemplate) {
+        templates.push(template)
+    }
+
     titleField(name: string, label: string) {
         return this.layouts.Dropdown([
             this.fields.Text(name, {

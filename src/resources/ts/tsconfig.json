@@ -3,7 +3,8 @@
     "baseUrl": ".",
     "paths": {
       "@core-cms-shared/*": ["../../../vendor/netauratech/core-cms/src/resources/ts/shared/*"]
-    }
+    },
+    "jsx": "react"
   },
   "include": [
     "**/*.ts",

@@ -1,5 +1,6 @@
 import {translate} from "@core-cms-shared/functions/i18n";
 import {prevent} from "@core-cms-shared/functions/functions";
+import {CSSProperties} from "preact/compat";
 
 
 type Props = {
@@ -9,7 +10,7 @@ type Props = {
 export function SidebarEmpty(data: Props) {
 
     return (
-        <div className='editor__sidebar-empty'>
+        <div className='grid padding-4 text-center' style={{overflowY: "auto", overflowX: "hidden"} as CSSProperties}>
             <p>{translate('content-manager.admin.editor.sidebar.empty')}</p>
             <div>
                 <button

@@ -17,6 +17,7 @@ import {CopyAction} from "./actions/copyAction";
 import {SidebarEmpty} from "./sidebarEmpty";
 import {SortableWrapper} from "../Sortable";
 import {SidebarComponent} from "./SidebarComponent";
+import {SidebarTemplates} from "./SidebarTemplates";
 
 
 enum States {
@@ -40,7 +41,6 @@ export function Sidebar({
     const hasTemplates = templates.length > 0;
     const showEmpty = data.length === 0 && hasTemplates;
     const isTemplateMode = state === States.TEMPLATES;
-
 
     const togglePreviewMode = useTogglePreviewMode();
     const previewMode = usePreviewMode();
@@ -68,12 +68,13 @@ export function Sidebar({
                 <div className='flex-group align-items-center'>
                     {hasTemplates && (
                         <button
-                            className='editor__sidebar-header-icon-button'
+                            className='button padding-0'
+                            data-type="transparent"
                             type={'button'}
                             onClick={prevent(toggleMode)}
-                            aria-label={isTemplateMode ? translate('content-manager.admin.editor.sidebar.component.add') : translate('editor.sidebar.template.use')}
+                            aria-label={isTemplateMode ? translate('content-manager.admin.editor.sidebar.component.add') : translate('content-manager.admin.editor.sidebar.template.use')}
                         >
-                            <Icon name={isTemplateMode ? 'bloc' : 'template'} additionalClass="small"/>
+                            <Icon name={isTemplateMode ? 'block' : 'template'} additionalClass="small"/>
                         </button>
                     )}
                     <CopyAction data={data}/>
@@ -114,6 +115,9 @@ export function Sidebar({
                         </SortableWrapper>
                     </div>
                 ))}
+            {state === States.TEMPLATES && (
+                <SidebarTemplates onTemplate={() => setState(States.BLOCS)} />
+            )}
             <div className='sidebar__footer'>
                 <button
                     className="button flex-group align-items-center"
