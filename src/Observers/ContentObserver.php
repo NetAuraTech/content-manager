@@ -89,6 +89,11 @@ class ContentObserver
             foreach ($validSuffixes as $suffix) {
                 if (str_ends_with($key, $suffix)) {
                     $prefix = substr($key, 0, -strlen($suffix));
+
+                    if($prefix == "") {
+                        $prefix = 'root';
+                    }
+
                     break;
                 }
                 if ($key === $suffix) {
