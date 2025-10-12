@@ -36,9 +36,11 @@
                 <automatic-gallery gap="{{ $block['gap'] }}rem" rowHeight="{{ $block['row-height'] }}">
                     @if(key_exists('medias', $block))
                         @foreach($block['medias'] as $item)
-                            <a href="{{ image_url($item['media']) }}">
-                                {!! image_tag($item['media'], key_exists('media-alt', $item) ? $item['media-alt'] : null, $block['row-height']) !!}
-                            </a>
+                            @if(key_exists('media', $item) && $item['media'] != "")
+                                <a href="{{ image_url($item['media']) }}">
+                                    {!! image_tag($item['media'], key_exists('media-alt', $item) ? $item['media-alt'] : null, $block['row-height']) !!}
+                                </a>
+                            @endif
                         @endforeach
                     @endif
                 </automatic-gallery>
