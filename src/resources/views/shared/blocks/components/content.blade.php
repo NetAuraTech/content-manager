@@ -1,17 +1,17 @@
 @php
-    $blocKey = $blocKey ?? 'content';
+    $blockKey = $blockKey ?? 'content';
     $block = $block ?? [];
 
     $contentClasses = $contentClasses ?? [];
-    $contentClasses[] = "block__" . substr(md5(json_encode($block)), 0, 8) . "-{$blocKey}";
+    $contentClasses[] = "block__" . substr(md5(json_encode($block)), 0, 8) . "-{$blockKey}";
 
     $contentStyles = [];
 
-    if(key_exists("{$blocKey}_animation", $block) && $block["{$blocKey}_animation"] !== '') {
-        $contentClasses[] = $block["{$blocKey}_animation"];
+    if(key_exists("{$blockKey}_animation", $block) && $block["{$blockKey}_animation"] !== '') {
+        $contentClasses[] = $block["{$blockKey}_animation"];
 
-        if(key_exists("{$blocKey}_delay", $block) && $block["{$blocKey}_delay"] !== "0") {
-            $contentStyles[] = '--delay: ' . $block["{$blocKey}_delay"] . 's;';
+        if(key_exists("{$blockKey}_delay", $block) && $block["{$blockKey}_delay"] !== "0") {
+            $contentStyles[] = '--delay: ' . $block["{$blockKey}_delay"] . 's;';
         }
     }
 @endphp
