@@ -32,10 +32,10 @@
             @include('content-manager::shared.blocks.components.content', ['block' => $block])
         @endif
         @if(key_exists('row-height', $block))
-            <light-box>
-                <automatic-gallery gap="{{ $block['gap'] }}rem" rowHeight="{{ $block['row-height'] }}">
-                    @if(key_exists('medias', $block))
-                        <div class="margin-block-start-10">
+            <div class="margin-block-start-10">
+                <light-box>
+                    <automatic-gallery gap="{{ $block['gap'] }}rem" rowHeight="{{ $block['row-height'] }}">
+                        @if(key_exists('medias', $block))
                             @foreach($block['medias'] as $item)
                                 @if(key_exists('media', $item) && $item['media'] != "")
                                     <a href="{{ image_url($item['media']) }}">
@@ -43,10 +43,10 @@
                                     </a>
                                 @endif
                             @endforeach
-                        </div>
-                    @endif
-                </automatic-gallery>
-            </light-box>
+                        @endif
+                    </automatic-gallery>
+                </light-box>
+            </div>
         @endif
     </div>
 @overwrite
