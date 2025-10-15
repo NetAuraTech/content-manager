@@ -10,6 +10,7 @@ export type HtmlTextFieldArgs = {
     label?: string
     default?: string
     canAnimate?: boolean
+    colors: string[]
 }
 
 function addHeadingClassesToHTML(html: string): string {
@@ -37,6 +38,12 @@ const Component = ({
 }) => {
     const containerRef = useRef<HTMLDivElement | null>(null);
     const editorRef = useRef<Quill | null>(null);
+    const onChangeRef = useRef(onChange);
+    const isUpdatingFromParent = useRef(false);
+
+    useEffect(() => {
+        onChangeRef.current = onChange;
+    }, [onChange]);
 
     const getColorOptions = () => {
         if (!options.colors || options.colors.length === 0) return undefined
@@ -62,14 +69,18 @@ const Component = ({
 
             editorRef.current.root.innerHTML = value || '';
 
-            editorRef.current.on('text-change', () => {
+            editorRef.current.on('text-change', (delta, oldDelta, source) => {
+                if (isUpdatingFromParent.current) {
+                    return;
+                }
+
                 const rawHTML = editorRef.current!.root.innerHTML;
                 const htmlWithClasses = addHeadingClassesToHTML(rawHTML);
-                onChange(htmlWithClasses);
+                onChangeRef.current(htmlWithClasses);
             });
 
             setTimeout(() => {
-                editorRef.current.container.style.height = '200px';
+                editorRef.current!.container.style.height = '200px';
                 const colorPickers = document.querySelectorAll('.ql-color .ql-picker-options');
                 colorPickers.forEach((picker) => {
                     (picker as HTMLElement).style.width = '192px';
@@ -80,11 +91,15 @@ const Component = ({
 
     useEffect(() => {
         if (editorRef.current) {
-            const rawHTML = editorRef.current.root.innerHTML;
+            const currentHTML = editorRef.current.root.innerHTML;
             const incoming = value || '';
 
-            if (rawHTML !== incoming) {
+            if (currentHTML !== incoming) {
+                isUpdatingFromParent.current = true;
                 editorRef.current.root.innerHTML = incoming;
+                Promise.resolve().then(() => {
+                    isUpdatingFromParent.current = false;
+                });
             }
         }
     }, [value])
@@ -103,6 +118,7 @@ export const HtmlText = defineField<HtmlTextFieldArgs, string>({
     defaultOptions: {
         default: '',
         canAnimate: false,
+        colors: []
     },
     render: Component,
 })
