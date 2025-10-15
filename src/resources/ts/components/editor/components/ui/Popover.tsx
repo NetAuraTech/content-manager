@@ -104,17 +104,57 @@ function PopoverContent({ children, className, style, side = 'bottom' }: Popover
         if (isOpen && triggerRef.current && contentRef.current) {
             const triggerRect = triggerRef.current.getBoundingClientRect();
             const contentRect = contentRef.current.getBoundingClientRect();
+            const padding = 8;
 
+            let scrollContainer = triggerRef.current.parentElement;
+            while (scrollContainer && scrollContainer !== document.body) {
+                const style = window.getComputedStyle(scrollContainer);
+                const overflow = style.overflow + style.overflowX + style.overflowY;
+                if (overflow.includes('auto') || overflow.includes('scroll') || overflow.includes('hidden')) {
+                    break;
+                }
+                scrollContainer = scrollContainer.parentElement;
+            }
+
+            const containerRect = scrollContainer ? scrollContainer.getBoundingClientRect() : {
+                left: 0,
+                right: window.innerWidth,
+                top: 0,
+                bottom: window.innerHeight
+            };
+
+            contentRef.current.style.left = '';
+            contentRef.current.style.right = '';
+
+            let topPosition = 0;
             switch (side) {
                 case 'top':
-                    contentRef.current.style.top = `-${contentRect.height + triggerRect.height / 2 - 16}px`;
-                    contentRef.current.style.left = `-${contentRect.width /2 - triggerRect.width / 2}px`;
+                    topPosition = -(contentRect.height + triggerRect.height / 2 - 16);
                     break;
                 case 'bottom':
-                    contentRef.current.style.top = `${triggerRect.height + 4}px`;
-                    contentRef.current.style.left = `-${contentRect.width /2 - triggerRect.width / 2}px`;
+                    topPosition = triggerRect.height + 4;
                     break;
             }
+
+            let leftPosition = -(contentRect.width / 2 - triggerRect.width / 2);
+
+            const centeredAbsoluteLeft = triggerRect.left + leftPosition;
+            const centeredAbsoluteRight = centeredAbsoluteLeft + contentRect.width;
+
+            if (centeredAbsoluteLeft < containerRect.left + padding) {
+                leftPosition = 0;
+
+                if (triggerRect.left < containerRect.left + padding) {
+                    leftPosition = -(triggerRect.left - containerRect.left) + padding;
+                }
+                contentRef.current.style.left = `${leftPosition}px`;
+            } else if (centeredAbsoluteRight > containerRect.right - padding) {
+                contentRef.current.style.right = `0px`;
+            } else {
+                contentRef.current.style.left = `${leftPosition}px`;
+            }
+
+            contentRef.current.style.top = `${topPosition}px`;
         }
     }, [isOpen, side, contentRef]);
 
