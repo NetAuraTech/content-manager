@@ -94,9 +94,22 @@ const Component = ({
             const currentHTML = editorRef.current.root.innerHTML;
             const incoming = value || '';
 
+            if (document.activeElement && editorRef.current.root.contains(document.activeElement)) {
+                return;
+            }
+
             if (currentHTML !== incoming) {
+                const selection = editorRef.current.getSelection();
                 isUpdatingFromParent.current = true;
                 editorRef.current.root.innerHTML = incoming;
+
+                if (selection) {
+                    try {
+                        editorRef.current.setSelection(selection.index, selection.length);
+                    } catch (e) {
+                    }
+                }
+
                 Promise.resolve().then(() => {
                     isUpdatingFromParent.current = false;
                 });
