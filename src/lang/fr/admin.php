@@ -211,7 +211,7 @@ return [
                     'value' => 'Grille',
                 ],
                 'header' => 'En-tête',
-                'hero' => 'Héro',
+                'hero' => 'Bannière',
                 'media' => [
                     'alt' => 'Alt',
                     'width' => [
@@ -244,7 +244,7 @@ return [
                     'url' => 'URL',
                     'value' => 'Lien',
                 ],
-                'links' => 'Liens',
+                'links' => 'Liste de liens',
                 'padding' => [
                     'block' => 'Espacement vertical',
                     'inline' => 'Espacement horizontal',

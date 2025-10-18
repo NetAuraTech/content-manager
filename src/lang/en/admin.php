@@ -244,7 +244,7 @@ return [
                     'url' => 'URL',
                     'value' => 'Link',
                 ],
-                'links' => 'Links',
+                'links' => 'List of links',
                 'padding' => [
                     'block' => 'Vertical spacing',
                     'inline' => 'Horizontal spacing',
