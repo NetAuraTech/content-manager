@@ -799,9 +799,48 @@ export class Editor {
 
     registerComponents(components: EditorComponentDefinition[]) {
         this.components = components;
+
+        this.components.push({ _id: 'hero',
+            title: translate('content-manager.admin.editor.sidebar.tabs.hero'),
+            category: translate('content-manager.admin.editor.category.template'),
+            canEditAppearance: true,
+            fields: [
+                this.titleField('title', translate('content-manager.admin.editor.sidebar.tabs.title.value')),
+                this.titleField('sub-title', translate('theme.admin.editor.sidebar.tabs.sub-title')),
+                this.fields.HtmlText('content', {
+                    label: translate('content-manager.admin.editor.sidebar.tabs.content'),
+                    colors: Object.values(this.colors()),
+                    multiline: true,
+                    canAnimate: true
+                } as HtmlTextFieldArgs),
+                this.fields.Repeater('ctas', {
+                    addLabel: translate('core-cms.admin.add'),
+                    fields: [
+                        this.ctas()
+                    ],
+                    label: translate('content-manager.admin.editor.sidebar.tabs.ctas')
+                } as RepeaterFieldArgs),
+            ]
+        } as EditorComponentDefinition);
+
+        this.components.push({
+            _id: 'header',
+            title: translate('content-manager.admin.editor.sidebar.tabs.header'),
+            category: translate('content-manager.admin.editor.category.template'),
+            canEditAppearance: false,
+            fields: [
+                this.fields.Repeater('links', {
+                    addLabel: translate('core-cms.admin.add'),
+                    fields: [
+                        this.links()
+                    ],
+                    label: translate('content-manager.admin.editor.sidebar.tabs.links')
+                } as RepeaterFieldArgs),
+            ]
+        } as EditorComponentDefinition);
+
         this.components.push({
             _id: 'card',
-            label: translate('content-manager.admin.editor.sidebar.tabs.card'),
             title: translate('content-manager.admin.editor.sidebar.tabs.card'),
             category: translate('content-manager.admin.editor.category.template'),
             canEditAppearance: true,
@@ -1059,6 +1098,7 @@ export class Editor {
             this.registerComponent(component['_id'], {
                 _id: component['_id'],
                 title: component['title'],
+                label: component['label'] ?? component['title'],
                 category: component['category'],
                 fields: [
                     this.baseTabs(component['fields'])
