@@ -29,7 +29,6 @@ class ContentManagerServiceProvider extends AbstractCmsServiceProvider
 
         $config['routes']['auth'] = false;
         $config['publishes']['config'] = false;
-        $config['publishes']['assets'] = false;
 
         return $config;
     }

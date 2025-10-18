@@ -1,4 +1,4 @@
-import {BlocSelectorProps, EditorComponentDefinitions} from "../../types";
+import {EditorComponentDefinitions} from "../../types";
 import {
     useAddBlock,
     useBlocSelectionVisible,
@@ -14,7 +14,7 @@ import {CSSProperties, useEffect, useMemo, useRef, useState} from "preact/compat
 
 const ALL_TAB = translate('content-manager.admin.editor.sidebar.component.all')
 
-export function BlocSelector({iconsUrl}: BlocSelectorProps) {
+export function BlocSelector() {
     const isVisible = useBlocSelectionVisible();
     const modalRef = useRef<HTMLElement | null>(null);
     const setBlockIndex = useSetBlockIndex()
@@ -112,7 +112,6 @@ export function BlocSelector({iconsUrl}: BlocSelectorProps) {
                                     key={key}
                                     definition={definitions[key]!}
                                     name={key}
-                                    iconsUrl={iconsUrl}
                                     onClick={() => addBlock(key)}
                                 />
                             ))}

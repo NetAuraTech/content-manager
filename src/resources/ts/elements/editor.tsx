@@ -800,11 +800,27 @@ export class Editor {
     registerComponents(components: EditorComponentDefinition[]) {
         this.components = components;
         this.components.push({
-            _id: 'theme-switcher',
-            title: translate('content-manager.admin.editor.sidebar.tabs.theme-switcher'),
+            _id: 'card',
+            label: translate('content-manager.admin.editor.sidebar.tabs.card'),
+            title: translate('content-manager.admin.editor.sidebar.tabs.card'),
             category: translate('content-manager.admin.editor.category.template'),
+            canEditAppearance: true,
             fields: [
+                ...this.mediaField('media'),
                 this.titleField('title', translate('content-manager.admin.editor.sidebar.tabs.title.value')),
+                this.fields.HtmlText('content', {
+                    label: translate('content-manager.admin.editor.sidebar.tabs.content'),
+                    multiline: true,
+                    colors: Object.values(this.colors()),
+                    canAnimate: true
+                } as HtmlTextFieldArgs),
+                this.fields.Repeater('ctas', {
+                    addLabel: translate('core-cms.admin.add'),
+                    fields: [
+                        this.ctas()
+                    ],
+                    label: translate('content-manager.admin.editor.sidebar.tabs.ctas')
+                } as RepeaterFieldArgs),
             ]
         } as EditorComponentDefinition);
 

@@ -250,7 +250,7 @@ return [
                     'inline' => 'Horizontal spacing',
                 ],
                 'section' => 'Section',
-                'theme-switcher' => 'Theme',
+                'card' => 'Card',
                 'title' => [
                     'color' => 'Color',
                     'level' => 'Level',

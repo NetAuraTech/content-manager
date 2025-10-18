@@ -250,7 +250,7 @@ return [
                     'inline' => 'Espacement horizontal',
                 ],
                 'section' => 'Section',
-                'theme-switcher' => 'Thème',
+                'card' => 'Carte',
                 'title' => [
                     'color' => 'Couleur',
                     'level' => 'Niveau',

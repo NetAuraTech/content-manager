@@ -1,20 +1,18 @@
 import {EditorComponentDefinition} from "../../types";
 import {prevent} from "@core-cms-shared/functions/functions";
 import {CSSProperties} from "preact/compat";
+import ImagePreview from "./ImagePreview";
 
 
 export function BlocSelectorItem({
                                      definition,
                                      name,
-                                     iconsUrl,
                                      onClick,
                                  }: {
     name: string
     definition: EditorComponentDefinition
-    iconsUrl: string
     onClick: () => void
 }) {
-    const icon = iconsUrl.replace('[name]', name)
     const title = definition.title
 
     return (
@@ -25,7 +23,7 @@ export function BlocSelectorItem({
             title={definition.title}
             style={{    gridTemplateRows: "1fr auto"} as CSSProperties}
         >
-            <img src={icon} alt='' width={280} height={80} />
+            <ImagePreview imageName={`${name}.svg`}/>
             <h3 className="heading-3">{title}</h3>
         </button>
     )
