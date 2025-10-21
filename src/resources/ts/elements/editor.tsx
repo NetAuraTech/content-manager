@@ -263,22 +263,6 @@ export class Editor {
                     label: translate('content-manager.admin.editor.sidebar.tabs.media.value'),
                     canAnimate: true
                 } as MediaFieldArgs),
-                this.fields.Text(`${name}-alt`, {
-                    label: translate('content-manager.admin.editor.sidebar.tabs.media.alt'),
-                    multiline: false,
-                    canAnimate: false
-                } as TextFieldArgs).when(name),
-                this.fields.Number(`${name}-height`, {
-                    label: translate('content-manager.admin.editor.sidebar.tabs.media.width.value'),
-                    help: translate('content-manager.admin.editor.sidebar.tabs.media.width.help')
-                } as NumberFieldArgs).when(name),
-                this.fields.Number(`${name}-opacity`, {
-                    label: translate('content-manager.admin.editor.sidebar.tabs.background.image.opacity'),
-                    default: "1",
-                    min: 0,
-                    max: 1,
-                    step: 0.01
-                } as NumberFieldArgs).when(name),
             ] as Array<FieldDefinition>, {
                 collapsed: translate('content-manager.admin.editor.sidebar.tabs.media.value')
             }),

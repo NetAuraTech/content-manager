@@ -30,9 +30,9 @@
         }
     @endphp
     <div class="{{ join(" ", $sectionClasses) }}">
-        @if(key_exists('media', $block) && $block['media'] !== "")
+        @if(key_exists('media', $block) && $block['media']['id'] !== "")
             <div class="margin-block-end-6 text-center">
-                {!! image_tag($block['media'], key_exists('media-alt', $block) ? $block['media-alt'] : null, $block['media-width'] ?: null, $transitionName, 'block__' . substr(md5(json_encode($block)), 0, 8) . '-media') !!}
+                {!! image_tag($block['media']['id'], $block['media']['alt'] ?: null, $block['media']['height'] ?: null, $transitionName, 'block__' . substr(md5(json_encode($block)), 0, 8) . '-media') !!}
             </div>
         @endif
         @if(key_exists('title', $block)  && $block['title'] !== "")
