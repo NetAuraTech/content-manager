@@ -67,7 +67,7 @@
 
             $jsonLdLocalBusiness = [
                 "@context" => "https://schema.org",
-                "@type" => "LocalBusiness",
+                "@type" => "ProfessionalService",
                 "name" => $site_name,
                 "legalName" => $site_name,
                 "image" => $logo,
