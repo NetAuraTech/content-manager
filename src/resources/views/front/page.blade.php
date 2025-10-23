@@ -3,6 +3,8 @@
     $site_name = $options['site_name'] ?? config('app.name');
     $openGraphLogo = $openGraphLogo ?? '';
     $logo = Request::url() . str_replace('&amp;', '&', $openGraphLogo);
+
+    $description = ($isHomepage ?? false) ? ($options['description'] ?? '') : ($content->description ?? '');
 @endphp
 
 @extends('core-cms::base')
@@ -10,9 +12,9 @@
 @section('title', $content->title)
 
 @section('description')
-    <meta property='og:description' content="{{ ($isHomepage ?? false) ? ($options['description'] ?? '') : ($content->description ?? '') }}"/>
-    <meta name='twitter:description' content="{{ ($isHomepage ?? false) ? ($options['description'] ?? '') : ($content->description ?? '') }}"/>
-    <meta name="description" content="{{ ($isHomepage ?? false) ? ($options['description'] ?? '') : ($content->description ?? '') }}"/>
+    <meta property='og:description' content="{{ $description }}"/>
+    <meta name='twitter:description' content="{{ $description }}"/>
+    <meta name="description" content="{{ $description }}"/>
 @endsection
 
 @section('meta')
@@ -67,8 +69,11 @@
                 "@context" => "https://schema.org",
                 "@type" => "LocalBusiness",
                 "name" => $site_name,
+                "legalName" => $site_name,
                 "image" => $logo,
                 "url" => Request::url(),
+                "email" => $options['contact-email'],
+                "description" => $description
             ];
 
             if (!empty($options['phone'])) {
@@ -110,14 +115,18 @@
             }
 
             if (!empty($options['address_latitude']) && !empty($options['address_longitude'])) {
-                $jsonLdLocalBusiness["geo"] = [
-                    "@type" => "GeoCoordinates",
-                    "latitude" => $options['address_latitude'],
-                    "longitude" => $options['address_longitude'],
-                    "address" => [
-                        "@type" => "PostalAddress",
-                        "addressCountry" => $options['address_country']
-                    ]
+                $jsonLdLocalBusiness["location"] = [
+                    "type" => "Place",
+                    "geo" => [
+                        "@type" => "GeoCoordinates",
+                        "latitude" => $options['address_latitude'],
+                        "longitude" => $options['address_longitude'],
+                        "address" => [
+                            "@type" => "PostalAddress",
+                            "addressCountry" => $options['address_country']
+                        ]
+                    ],
+                    "hasMap" => "https://www.google.com/maps/search/?api=1&query={$options['address_latitude']},{$options['address_longitude']}"
                 ];
             }
 
