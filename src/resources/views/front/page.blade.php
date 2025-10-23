@@ -1,3 +1,10 @@
+@php
+    $options = $options ?? [];
+    $site_name = $options['site_name'] ?? config('app.name');
+    $openGraphLogo = $openGraphLogo ?? '';
+    $logo = Request::url() . str_replace('&amp;', '&', $openGraphLogo);
+@endphp
+
 @extends('core-cms::base')
 
 @section('title', $content->title)
@@ -9,10 +16,166 @@
 @endsection
 
 @section('meta')
+    @parent
+
+    @if($isHomepage && !empty($options['address_city']))
+        <meta property="og:type" content="business.business"/>
+        <meta property="business:contact_data:street_address" content="{{ $options['address'] ?? '' }}"/>
+        <meta property="business:contact_data:locality" content="{{ $options['address_city'] }}"/>
+        <meta property="business:contact_data:region" content="{{ $options['address_region'] }}"/>
+        <meta property="business:contact_data:postal_code" content="{{ $options['address_postal-code'] }}"/>
+        <meta property="business:contact_data:country_name" content="{{ $options['address_country'] }}"/>
+        @if(!empty($options['phone']))
+            <meta property="business:contact_data:phone_number" content="{{ $options['phone'] }}"/>
+        @endif
+        @if(!empty($options['contact-email']))
+            <meta property="business:contact_data:email" content="{{ $options['contact-email'] }}"/>
+        @endif
+        <meta name="geo.placename" content="{{ $options['address_city'] }}"/>
+        <meta name="geo.position" content="{{ $options['address_latitude'] }};{{ $options['address_longitude'] }}"/>
+        <meta name="ICBM" content="{{ $options['address_latitude'] }}, {{ $options['address_longitude'] }}"/>
+    @endif
+
     @foreach($metas as $meta)
         @include($meta['template'], ['content' => $content, 'openGraphLogo' => $openGraphLogo])
     @endforeach
 @endsection
+
+@section('jsonLd')
+    @if($isHomepage)
+        @php
+            $areaServedNames = !empty($options['area_served']) ? explode(", ", $options['area_served']) : [];
+            $areaServedObjects = [];
+
+            if (!empty($options['address_region'])) {
+                $areaServedObjects[] = [
+                    "@type" => "State",
+                    "name" => $options['address_region']
+                ];
+            }
+
+            foreach ($areaServedNames as $cityName) {
+                if (!empty(trim($cityName))) {
+                    $areaServedObjects[] = [
+                        "@type" => "City",
+                        "name" => trim($cityName)
+                    ];
+                }
+            }
+
+            $jsonLdLocalBusiness = [
+                "@context" => "https://schema.org",
+                "@type" => "LocalBusiness",
+                "name" => $site_name,
+                "image" => $logo,
+                "url" => Request::url(),
+            ];
+
+            if (!empty($options['phone'])) {
+                $jsonLdLocalBusiness["telephone"] = $options['phone'];
+            }
+
+            if (!empty($options['price_range'])) {
+                $jsonLdLocalBusiness["priceRange"] = $options['price_range'];
+            } else {
+                $jsonLdLocalBusiness["priceRange"] = "€€";
+            }
+
+            $address = [
+                "@type" => "PostalAddress",
+            ];
+
+            if (!empty($options['address'])) {
+                $address["streetAddress"] = $options['address'];
+            }
+
+            if (!empty($options['address_city'])) {
+                $address["addressLocality"] = $options['address_city'];
+            }
+
+            if (!empty($options['address_postal-code'])) {
+                $address["postalCode"] = $options['address_postal-code'];
+            }
+
+            if (!empty($options['address_region'])) {
+                $address["addressRegion"] = $options['address_region'];
+            }
+
+            if (!empty($options['address_country'])) {
+                $address["addressCountry"] = $options['address_country'];
+            }
+
+            if (!empty($options['address_city'])) {
+                $jsonLdLocalBusiness["address"] = $address;
+            }
+
+            if (!empty($options['address_latitude']) && !empty($options['address_longitude'])) {
+                $jsonLdLocalBusiness["geo"] = [
+                    "@type" => "GeoCoordinates",
+                    "latitude" => $options['address_latitude'],
+                    "longitude" => $options['address_longitude'],
+                    "address" => [
+                        "@type" => "PostalAddress",
+                        "addressCountry" => $options['address_country']
+                    ]
+                ];
+            }
+
+            if (!empty($areaServedObjects)) {
+                $jsonLdLocalBusiness["areaServed"] = $areaServedObjects;
+            }
+
+            $daysMapping = [
+                'monday' => 'Monday',
+                'tuesday' => 'Tuesday',
+                'wednesday' => 'Wednesday',
+                'thursday' => 'Thursday',
+                'friday' => 'Friday',
+                'saturday' => 'Saturday',
+                'sunday' => 'Sunday'
+            ];
+
+            $openingHoursSpecification = [];
+
+            foreach ($daysMapping as $dayKey => $dayName) {
+                $schedule = $options["schedule_{$dayKey}"] ?? '';
+
+                if (empty($schedule)) {
+                    continue;
+                }
+
+                $slots = explode('/', $schedule);
+
+                foreach ($slots as $slot) {
+                    $times = explode('-', trim($slot));
+
+                    if (count($times) === 2) {
+                        $openingHoursSpecification[] = [
+                            "@type" => "OpeningHoursSpecification",
+                               "dayOfWeek" => $dayName,
+                               "opens" => trim($times[0]),
+                               "closes" => trim($times[1]),
+                           ];
+                    }
+                }
+            }
+
+            if (!empty($openingHoursSpecification)) {
+                $jsonLdLocalBusiness["openingHoursSpecification"] = $openingHoursSpecification;
+            }
+
+            if (!empty($sameAs)) {
+                $jsonLdLocalBusiness["sameAs"] = $sameAs;
+            }
+        @endphp
+
+        @if(!empty($options['address_city']))
+            <script type="application/ld+json">
+                {!! json_encode($jsonLdLocalBusiness, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) !!}
+            </script>
+        @endif
+    @endif
+@overwrite
 
 @section('header')
     @if($options['header'] !== "")
