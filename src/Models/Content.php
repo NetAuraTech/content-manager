@@ -4,6 +4,7 @@ namespace Netauratech\ContentManager\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Str;
 use JsonException;
@@ -71,5 +72,12 @@ class Content extends Model implements CommentableInterface
     public function getMorphClass(): string
     {
         return parent::getMorphClass();
+    }
+
+    public function media(): BelongsTo
+    {
+        return $this->belongsTo(
+            config('core-cms.media.model')
+        );
     }
 }

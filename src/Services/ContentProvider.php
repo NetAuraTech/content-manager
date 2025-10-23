@@ -24,6 +24,7 @@ class ContentProvider implements ContentProviderInterface
         return Content::where('type', $type)
             ->where('status', 'published')
             ->orderBy('published_at', 'desc')
+            ->with('media')
             ->paginate($perPage);
     }
 
@@ -43,6 +44,7 @@ class ContentProvider implements ContentProviderInterface
                 $query->where('categories.slug', $slug);
             })
             ->orderBy('published_at', 'desc')
+            ->with('media')
             ->paginate($perPage);
     }
 
