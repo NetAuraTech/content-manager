@@ -20,6 +20,42 @@
 @section('meta')
     @parent
 
+    @php
+        $regionCodesByCountry = [
+            'FR' => [
+                'Auvergne-Rhône-Alpes' => 'FR-ARA',
+                'Bourgogne-Franche-Comté' => 'FR-BFC',
+                'Bretagne' => 'FR-BRE',
+                'Centre-Val de Loire' => 'FR-CVL',
+                'Corse' => 'FR-COR',
+                'Grand Est' => 'FR-GES',
+                'Hauts-de-France' => 'FR-HDF',
+                'Île-de-France' => 'FR-IDF',
+                'Normandie' => 'FR-NOR',
+                'Nouvelle-Aquitaine' => 'FR-NAQ',
+                'Occitanie' => 'FR-OCC',
+                'Pays de la Loire' => 'FR-PDL',
+                "Provence-Alpes-Côte d'Azur" => 'FR-PAC',
+            ],
+        ];
+
+        $userCountry = strtoupper($options['address_country'] ?? 'FR');
+        $userRegion = $options['address_region'] ?? '';
+
+        $normalizedInput = strtolower(str_replace([' ', '-', "'", 'ü', 'ö', 'ä', 'ß'], ['', '', '', 'u', 'o', 'a', 'ss'], $userRegion));
+
+        $regionCode = null;
+        if (isset($regionCodesByCountry[$userCountry])) {
+            foreach ($regionCodesByCountry[$userCountry] as $name => $code) {
+                $normalizedName = strtolower(str_replace([' ', '-', "'", 'ü', 'ö', 'ä', 'ß'], ['', '', '', 'u', 'o', 'a', 'ss'], $name));
+                if ($normalizedInput === $normalizedName) {
+                    $regionCode = $code;
+                    break;
+                }
+            }
+        }
+    @endphp
+
     @if($isHomepage && !empty($options['address_city']))
         <meta property="og:type" content="business.business"/>
         <meta property="business:contact_data:street_address" content="{{ $options['address'] ?? '' }}"/>
@@ -32,6 +68,9 @@
         @endif
         @if(!empty($options['contact-email']))
             <meta property="business:contact_data:email" content="{{ $options['contact-email'] }}"/>
+        @endif
+        @if($regionCode)
+            <meta name="geo.region" content="{{ $regionCode }}">
         @endif
         <meta name="geo.placename" content="{{ $options['address_city'] }}"/>
         <meta name="geo.position" content="{{ $options['address_latitude'] }};{{ $options['address_longitude'] }}"/>
@@ -73,7 +112,15 @@
                 "image" => $logo,
                 "url" => Request::url(),
                 "email" => $options['contact-email'],
-                "description" => $description
+                "description" => $description,
+                "contactPoint" => [
+                    "@type" => "ContactPoint",
+                    "contactType" => "customer service",
+                    "telephone" => $options['phone'],
+                    "email" => $options['contact-email'],
+                    "availableLanguage" => ["French"],
+                    "areaServed" => "FR"
+                ]
             ];
 
             if (!empty($options['phone'])) {
