@@ -83,6 +83,7 @@
 @endsection
 
 @section('jsonLd')
+    @parent
     @if($isHomepage)
         @php
             $areaServedNames = !empty($options['area_served']) ? explode(", ", $options['area_served']) : [];
@@ -231,7 +232,7 @@
             </script>
         @endif
     @endif
-@overwrite
+@endsection
 
 @section('header')
     @if($options['header'] !== "")
